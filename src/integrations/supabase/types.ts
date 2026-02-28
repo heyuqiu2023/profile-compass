@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          activity_date: string | null
+          created_at: string
+          id: string
+          note: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          activity_date?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bio: string | null

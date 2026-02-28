@@ -2,17 +2,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Globe, Award, Bot, Plus, ExternalLink, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useProfile } from "@/contexts/ProfileContext";
+import ProfileCompletenessRing from "@/components/dashboard/ProfileCompletenessRing";
 
 const DashboardHome = () => {
+  const { data } = useProfile();
+
   return (
     <div className="container max-w-5xl py-8 px-4 md:px-8 space-y-8 animate-fade-in-up">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Welcome back. Your Lumora is live.
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your profile, build CVs, and share your portfolio.
-        </p>
+      {/* Welcome + Completeness */}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+        <div className="flex-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            Welcome back. Your Lumora is live.
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your profile, build CVs, and share your portfolio.
+          </p>
+        </div>
+        <ProfileCompletenessRing data={data} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

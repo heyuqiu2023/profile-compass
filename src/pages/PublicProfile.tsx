@@ -4,8 +4,9 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp, Briefcase } from "lucide-react";
+import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp, Briefcase, CalendarDays } from "lucide-react";
 import { THEMES, ThemeId, ThemeColors } from "@/lib/themes";
+import { ACTIVITY_TYPE_COLORS } from "@/types/onboarding";
 
 // Demo data — will be replaced with DB fetch later
 const demoProfile = {
@@ -43,15 +44,22 @@ const demoBadges = [
 const demoSkills = ["Python", "React", "TypeScript", "Figma", "SQL", "TensorFlow", "Docker", "Node.js"];
 const demoInterests = ["Fintech", "UI Design", "Sustainability", "Machine Learning", "Open Source"];
 
+const demoActivities = [
+  { id: "1", title: "Attended UCL AI Summit 2025", type: "Conference", activityDate: "2025-03", note: "Met 3 potential co-founders" },
+  { id: "2", title: "Volunteered at Freshers' Fair", type: "Event", activityDate: "2024-09", note: "Helped run the Tech Society stall" },
+  { id: "3", title: "Bloomberg Tech Workshop", type: "Workshop", activityDate: "2024-11", note: "" },
+];
+
 const demoProfiles: Record<string, {
   profile: typeof demoProfile;
   experiences: typeof demoExperiences;
   badges: typeof demoBadges;
+  activities: typeof demoActivities;
   skills: string[];
   interests: string[];
 } | undefined> = {};
 
-demoProfiles["demotozero"] = { profile: demoProfile, experiences: demoExperiences, badges: demoBadges, skills: demoSkills, interests: demoInterests };
+demoProfiles["demotozero"] = { profile: demoProfile, experiences: demoExperiences, badges: demoBadges, activities: demoActivities, skills: demoSkills, interests: demoInterests };
 
 const formatDate = (d: string) => {
   if (!d) return "Present";
@@ -126,7 +134,7 @@ const PublicProfile = () => {
     );
   }
 
-  const { profile, experiences, badges, skills, interests } = profileData;
+  const { profile, experiences, badges, activities, skills, interests } = profileData;
   const themeId = (profile.theme || "navy") as ThemeId;
   const theme = THEMES[themeId] || THEMES.navy;
   const c = theme.colors;
@@ -222,6 +230,40 @@ const PublicProfile = () => {
           <div className="ml-1">{experiences.map((exp, i) => <ExperienceCard key={exp.id} exp={exp} index={i} colors={c} />)}</div>
         </div>
       </section>
+
+      {/* Activities */}
+      {activities.length > 0 && (
+        <section className="pb-12 md:pb-16">
+          <div className="container max-w-3xl px-6">
+            <FadeInSection><h2 className="text-xl font-bold mb-4" style={{ color: c.text }}>Activities</h2></FadeInSection>
+            <div className="space-y-2.5">
+              {activities
+                .sort((a, b) => b.activityDate.localeCompare(a.activityDate))
+                .map((act, i) => (
+                <FadeInSection key={act.id} delay={i * 0.06}>
+                  <div
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg"
+                    style={{ backgroundColor: c.isDark ? c.secondary + "10" : c.accent + "06", border: `1px solid ${c.isDark ? c.secondary + "20" : c.accent + "12"}` }}
+                  >
+                    <CalendarDays className="w-3.5 h-3.5 flex-shrink-0" style={{ color: c.muted }} />
+                    <span
+                      className="text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0"
+                      style={{ backgroundColor: c.accent + "15", color: c.accent }}
+                    >
+                      {act.type}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm font-medium" style={{ color: c.text }}>{act.title}</span>
+                      {act.note && <span className="text-xs ml-2" style={{ color: c.muted }}>· {act.note}</span>}
+                    </div>
+                    <span className="text-xs shrink-0" style={{ color: c.muted }}>{formatDate(act.activityDate)}</span>
+                  </div>
+                </FadeInSection>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Achievements */}
       <section className="pb-12 md:pb-16">
