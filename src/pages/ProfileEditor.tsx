@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { OnboardingData, Experience, BadgeEntry, defaultOnboardingData, EXPERIENCE_TYPES, BADGE_CATEGORIES, BADGE_ICONS, YEAR_OPTIONS } from "@/types/onboarding";
+import { OnboardingData, Experience, BadgeEntry, EXPERIENCE_TYPES, BADGE_CATEGORIES, BADGE_ICONS, YEAR_OPTIONS } from "@/types/onboarding";
+import { useProfile } from "@/contexts/ProfileContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,61 +15,7 @@ import { Camera, Plus, Trash2, Save, X, Pencil } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 
-// Demo data for preview
-const demoData: OnboardingData = {
-  ...defaultOnboardingData,
-  firstName: "Alex",
-  lastName: "Chen",
-  headline: "CS student at UCL",
-  university: "University College London",
-  course: "BSc Computer Science",
-  yearOfStudy: "2nd Year",
-  expectedGraduation: "2027",
-  bio: "Passionate about building products at the intersection of tech and finance.",
-  location: "London, UK",
-  linkedinUrl: "https://linkedin.com/in/alexchen",
-  githubUrl: "https://github.com/alexchen",
-  experiences: [
-    {
-      id: "1",
-      type: "Internship",
-      title: "Software Engineering Intern",
-      organisation: "Google",
-      startDate: "2025-06",
-      endDate: "",
-      isCurrent: true,
-      description: "Working on frontend infrastructure for Google Cloud Console. Built reusable component library used by 20+ teams.",
-    },
-    {
-      id: "2",
-      type: "Society Role",
-      title: "President",
-      organisation: "UCL Tech Society",
-      startDate: "2024-09",
-      endDate: "2025-06",
-      isCurrent: false,
-      description: "Led a team of 30 committee members. Organised 15+ events including hackathons and speaker sessions.",
-    },
-    {
-      id: "3",
-      type: "Project",
-      title: "FinTrack",
-      organisation: "Personal Project",
-      startDate: "2024-03",
-      endDate: "2024-06",
-      isCurrent: false,
-      description: "Built a personal finance tracker with React and Supabase. 500+ users in first month.",
-    },
-  ],
-  skills: ["Python", "React", "TypeScript", "Figma", "SQL"],
-  interests: ["Fintech", "UI Design", "Sustainability"],
-  badges: [
-    { id: "1", title: "Hackathon Winner", issuer: "MLH", dateReceived: "2025-01", category: "Competition", icon: "🏆" },
-    { id: "2", title: "Dean's List 2025", issuer: "UCL", dateReceived: "2025-06", category: "Award", icon: "🎓" },
-    { id: "3", title: "AWS Cloud Practitioner", issuer: "Amazon Web Services", dateReceived: "2024-11", category: "Certification", icon: "💻" },
-  ],
-};
-
+// Demo data removed — now provided by ProfileContext
 const EXPERIENCE_TYPE_COLORS: Record<string, string> = {
   Internship: "bg-blue-100 text-blue-800",
   "Part-time Job": "bg-green-100 text-green-800",
@@ -257,14 +204,12 @@ const BadgeForm = ({
 
 // ─── Main Profile Editor ───
 const ProfileEditor = () => {
-  const [data, setData] = useState<OnboardingData>(demoData);
+  const { data, update } = useProfile();
   const [editingExpId, setEditingExpId] = useState<string | null>(null);
   const [addingExp, setAddingExp] = useState(false);
   const [editingBadgeId, setEditingBadgeId] = useState<string | null>(null);
   const [addingBadge, setAddingBadge] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const update = (partial: Partial<OnboardingData>) => setData((prev) => ({ ...prev, ...partial }));
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

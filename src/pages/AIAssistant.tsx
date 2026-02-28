@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Send,
   Loader2,
@@ -15,12 +13,16 @@ import {
   Zap,
   Bot,
   User,
+  Check,
+  ArrowDownToLine,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useProfile } from "@/contexts/ProfileContext";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+const EXTRACT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-profile-updates`;
 
 const quickActions = [
   { id: "improve-bio", label: "Improve my bio", icon: PenLine, color: "text-blue-600" },
@@ -30,30 +32,6 @@ const quickActions = [
   { id: "headline-ideas", label: "Generate headlines", icon: Lightbulb, color: "text-rose-600" },
   { id: "suggest-skills", label: "Suggest skills", icon: Zap, color: "text-cyan-600" },
 ];
-
-// Demo profile context (matches ProfileEditor demo data)
-const demoProfile = {
-  firstName: "Alex",
-  lastName: "Chen",
-  headline: "CS student at UCL",
-  university: "University College London",
-  course: "BSc Computer Science",
-  yearOfStudy: "2nd Year",
-  bio: "Passionate about building products at the intersection of tech and finance.",
-  location: "London, UK",
-  skills: ["Python", "React", "TypeScript", "Figma", "SQL"],
-  interests: ["Fintech", "UI Design", "Sustainability"],
-  experiences: [
-    { title: "Software Engineering Intern", organisation: "Google", type: "Internship", isCurrent: true, description: "Working on frontend infrastructure for Google Cloud Console. Built reusable component library used by 20+ teams." },
-    { title: "President", organisation: "UCL Tech Society", type: "Society Role", description: "Led a team of 30 committee members. Organised 15+ events including hackathons and speaker sessions." },
-    { title: "FinTrack", organisation: "Personal Project", type: "Project", description: "Built a personal finance tracker with React and Supabase. 500+ users in first month." },
-  ],
-  badges: [
-    { title: "Hackathon Winner", issuer: "MLH" },
-    { title: "Dean's List 2025", issuer: "UCL" },
-    { title: "AWS Cloud Practitioner", issuer: "Amazon Web Services" },
-  ],
-};
 
 async function streamChat({
   messages,
@@ -122,17 +100,44 @@ async function streamChat({
 }
 
 const AIAssistant = () => {
+  const { data: profileData, update: updateProfile } = useProfile();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [applyingIdx, setApplyingIdx] = useState<number | null>(null);
+  const [appliedIdxs, setAppliedIdxs] = useState<Set<number>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Build a slim profile summary for AI context
+  const profileSummary = {
+    firstName: profileData.firstName,
+    lastName: profileData.lastName,
+    headline: profileData.headline,
+    university: profileData.university,
+    course: profileData.course,
+    yearOfStudy: profileData.yearOfStudy,
+    bio: profileData.bio,
+    location: profileData.location,
+    skills: profileData.skills,
+    interests: profileData.interests,
+    experiences: profileData.experiences.map((e) => ({
+      title: e.title,
+      organisation: e.organisation,
+      type: e.type,
+      isCurrent: e.isCurrent,
+      description: e.description,
+    })),
+    badges: profileData.badges.map((b) => ({
+      title: b.title,
+      issuer: b.issuer,
+    })),
+  };
 
   const send = async (text: string, action?: string) => {
     const userMsg: Msg = { role: "user", content: text };
@@ -158,7 +163,7 @@ const AIAssistant = () => {
     await streamChat({
       messages: action ? [] : newMessages,
       action,
-      profileData: demoProfile,
+      profileData: profileSummary,
       onDelta: upsertAssistant,
       onDone: () => setIsLoading(false),
       onError: (err) => {
@@ -166,6 +171,89 @@ const AIAssistant = () => {
         setIsLoading(false);
       },
     });
+  };
+
+  const handleApply = async (msgIdx: number) => {
+    const aiMessage = messages[msgIdx];
+    if (!aiMessage || aiMessage.role !== "assistant") return;
+
+    setApplyingIdx(msgIdx);
+    try {
+      const resp = await fetch(EXTRACT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          aiResponse: aiMessage.content,
+          currentProfile: profileSummary,
+        }),
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        toast.error(data.error || "Failed to extract updates");
+        return;
+      }
+
+      const { updates, error } = await resp.json();
+      if (error || !updates) {
+        toast.error(error || "No applicable updates found in this response.");
+        return;
+      }
+
+      // Apply updates to profile
+      const changes: Partial<typeof profileData> = {};
+      let changeCount = 0;
+
+      if (updates.headline) {
+        changes.headline = updates.headline;
+        changeCount++;
+      }
+      if (updates.bio) {
+        changes.bio = updates.bio;
+        changeCount++;
+      }
+      if (updates.skills?.length) {
+        const merged = Array.from(new Set([...profileData.skills, ...updates.skills]));
+        changes.skills = merged;
+        changeCount++;
+      }
+      if (updates.interests?.length) {
+        const merged = Array.from(new Set([...profileData.interests, ...updates.interests]));
+        changes.interests = merged;
+        changeCount++;
+      }
+      if (updates.experience_updates?.length) {
+        const updatedExps = profileData.experiences.map((exp) => {
+          const match = updates.experience_updates.find(
+            (u: any) =>
+              u.title.toLowerCase() === exp.title.toLowerCase() ||
+              u.organisation.toLowerCase() === exp.organisation.toLowerCase()
+          );
+          if (match) {
+            changeCount++;
+            return { ...exp, description: match.new_description };
+          }
+          return exp;
+        });
+        changes.experiences = updatedExps;
+      }
+
+      if (changeCount === 0) {
+        toast.info("No specific updates could be extracted from this response.");
+        return;
+      }
+
+      updateProfile(changes);
+      setAppliedIdxs((prev) => new Set(prev).add(msgIdx));
+      toast.success(`Applied ${changeCount} update${changeCount > 1 ? "s" : ""} to your profile!`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to apply updates");
+    } finally {
+      setApplyingIdx(null);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -218,30 +306,57 @@ const AIAssistant = () => {
         ) : (
           <div className="space-y-6">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}>
-                {msg.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Bot className="w-4 h-4 text-primary" />
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] rounded-xl px-4 py-3 text-sm ${
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+              <div key={i}>
+                <div className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}>
+                  {msg.role === "assistant" && (
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Bot className="w-4 h-4 text-primary" />
                     </div>
-                  ) : (
-                    <p>{msg.content}</p>
+                  )}
+                  <div
+                    className={`max-w-[80%] rounded-xl px-4 py-3 text-sm ${
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground"
+                    }`}
+                  >
+                    {msg.role === "assistant" ? (
+                      <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p>{msg.content}</p>
+                    )}
+                  </div>
+                  {msg.role === "user" && (
+                    <div className="w-8 h-8 rounded-lg bg-secondary/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <User className="w-4 h-4 text-secondary-foreground" />
+                    </div>
                   )}
                 </div>
-                {msg.role === "user" && (
-                  <div className="w-8 h-8 rounded-lg bg-secondary/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <User className="w-4 h-4 text-secondary-foreground" />
+                {/* Apply button for assistant messages */}
+                {msg.role === "assistant" && !isLoading && (
+                  <div className="ml-11 mt-2">
+                    {appliedIdxs.has(i) ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                        <Check className="w-3.5 h-3.5" /> Applied to profile
+                      </span>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs gap-1.5"
+                        onClick={() => handleApply(i)}
+                        disabled={applyingIdx !== null}
+                      >
+                        {applyingIdx === i ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <ArrowDownToLine className="w-3.5 h-3.5" />
+                        )}
+                        Apply to Profile
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
@@ -264,7 +379,6 @@ const AIAssistant = () => {
       <div className="border-t border-border bg-background px-4 md:px-8 py-4">
         <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-3xl mx-auto">
           <Textarea
-            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
