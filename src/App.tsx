@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Onboarding from "./pages/Onboarding";
 import DashboardLayout from "./pages/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
+import ProfileEditor from "./pages/ProfileEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,7 +23,7 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
-            <Route path="profile" element={<div className="p-8 text-muted-foreground">Profile editor coming soon…</div>} />
+            <Route path="profile" element={<ProfileEditor />} />
             <Route path="cv" element={<div className="p-8 text-muted-foreground">CV Builder coming soon…</div>} />
             <Route path="website" element={<div className="p-8 text-muted-foreground">Website preview coming soon…</div>} />
             <Route path="badges" element={<div className="p-8 text-muted-foreground">Badge Wall coming soon…</div>} />
