@@ -23,7 +23,7 @@ export interface OnboardingData {
   experiences: Experience[];
 
   // Step 4: Skills & Interests
-  skills: string[];
+  skills: Skill[];
   interests: string[];
 
   // Step 5: Badges
@@ -66,6 +66,21 @@ export interface ActivityEntry {
   activityDate: string;
   note: string;
 }
+
+export type Proficiency = "beginner" | "intermediate" | "advanced" | "expert";
+
+export interface Skill {
+  id: string;
+  name: string;
+  proficiency: Proficiency;
+}
+
+export const PROFICIENCY_LEVELS: { value: Proficiency; label: string; percent: number; color: string }[] = [
+  { value: "beginner", label: "Beginner", percent: 25, color: "bg-muted-foreground/30" },
+  { value: "intermediate", label: "Intermediate", percent: 50, color: "bg-[hsl(36,60%,65%)]" },
+  { value: "advanced", label: "Advanced", percent: 75, color: "bg-[hsl(213,52%,24%)]" },
+  { value: "expert", label: "Expert", percent: 100, color: "bg-emerald-600" },
+];
 
 export const ACTIVITY_TYPES = [
   "Event",

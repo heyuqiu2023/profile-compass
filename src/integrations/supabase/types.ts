@@ -134,6 +134,30 @@ export type Database = {
         }
         Relationships: []
       }
+      skills: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          proficiency: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          proficiency?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          proficiency?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_featured_badges: {
         Row: {
           badge_id: string

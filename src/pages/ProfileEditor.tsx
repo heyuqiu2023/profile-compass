@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
-  OnboardingData, Experience, BadgeEntry, ActivityEntry,
+  OnboardingData, Experience, BadgeEntry, ActivityEntry, Skill, Proficiency,
   EXPERIENCE_TYPES, BADGE_CATEGORIES, BADGE_ICONS,
-  ACTIVITY_TYPES, ACTIVITY_TYPE_COLORS, YEAR_OPTIONS,
+  ACTIVITY_TYPES, ACTIVITY_TYPE_COLORS, YEAR_OPTIONS, PROFICIENCY_LEVELS,
 } from "@/types/onboarding";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Input } from "@/components/ui/input";
@@ -141,6 +141,102 @@ const ActivityFormDialog = ({ activity, open, onOpenChange, onSave }: {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+};
+
+// ─── Skills Section ───
+const SkillsSection = ({ skills, onChange }: { skills: Skill[]; onChange: (s: Skill[]) => void }) => {
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newProf, setNewProf] = useState<Proficiency>("intermediate");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const addSkill = () => {
+    const name = newName.trim();
+    if (!name) return;
+    if (skills.some((s) => s.name.toLowerCase() === name.toLowerCase())) { toast.error("Skill already exists"); return; }
+    onChange([...skills, { id: crypto.randomUUID(), name, proficiency: newProf }]);
+    setNewName(""); setNewProf("intermediate"); setAdding(false);
+    toast.success("Skill added");
+  };
+
+  const updateProficiency = (id: string, proficiency: Proficiency) => {
+    onChange(skills.map((s) => s.id === id ? { ...s, proficiency } : s));
+    setEditingId(null);
+  };
+
+  const removeSkill = (id: string) => {
+    onChange(skills.filter((s) => s.id !== id));
+    toast.success("Skill removed");
+  };
+
+  const getProfLevel = (p: Proficiency) => PROFICIENCY_LEVELS.find((l) => l.value === p)!;
+
+  return (
+    <Card id="section-skills">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-lg">Skills</CardTitle>
+        {!adding && (
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setAdding(true)}>
+            <Plus className="w-3.5 h-3.5" /> Add Skill
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {adding && (
+          <div className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-primary/20 bg-primary/5">
+            <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Skill name" className="flex-1"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(); } }} />
+            <Select value={newProf} onValueChange={(v) => setNewProf(v as Proficiency)}>
+              <SelectTrigger className="w-full sm:w-[150px]"><SelectValue /></SelectTrigger>
+              <SelectContent>{PROFICIENCY_LEVELS.map((l) => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent>
+            </Select>
+            <div className="flex gap-1.5">
+              <Button size="sm" onClick={addSkill}>Add</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setAdding(false); setNewName(""); }}>Cancel</Button>
+            </div>
+          </div>
+        )}
+
+        {skills.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {skills.map((skill) => {
+              const level = getProfLevel(skill.proficiency);
+              return (
+                <div key={skill.id} className="relative p-3 rounded-lg border border-border hover:shadow-sm transition-shadow group">
+                  {/* Remove button */}
+                  <button onClick={() => removeSkill(skill.id)}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted">
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+
+                  <p className="font-semibold text-foreground text-sm leading-tight pr-5">{skill.name}</p>
+
+                  {/* Inline proficiency edit */}
+                  {editingId === skill.id ? (
+                    <Select value={skill.proficiency} onValueChange={(v) => updateProficiency(skill.id, v as Proficiency)}>
+                      <SelectTrigger className="h-6 text-[11px] mt-1.5 w-full"><SelectValue /></SelectTrigger>
+                      <SelectContent>{PROFICIENCY_LEVELS.map((l) => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent>
+                    </Select>
+                  ) : (
+                    <button onClick={() => setEditingId(skill.id)} className="text-xs text-muted-foreground mt-0.5 hover:text-foreground transition-colors">
+                      {level.label}
+                    </button>
+                  )}
+
+                  {/* Progress bar */}
+                  <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${level.color}`} style={{ width: `${level.percent}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          !adding && <p className="text-sm text-muted-foreground italic">No skills added yet.</p>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
@@ -385,13 +481,7 @@ const ProfileEditor = () => {
 
       <ActivityFormDialog activity={editingActivity} open={activityDialogOpen} onOpenChange={setActivityDialogOpen} onSave={saveActivity} />
 
-      {/* Section 5: Skills */}
-      <Card id="section-skills">
-        <CardHeader><CardTitle className="text-lg">Skills</CardTitle></CardHeader>
-        <CardContent>
-          <TagInput tags={data.skills} onChange={(skills) => update({ skills })} placeholder="e.g. Python, React, SQL — press Enter to add" />
-        </CardContent>
-      </Card>
+      <SkillsSection skills={data.skills} onChange={(skills) => update({ skills })} />
 
       {/* Section 6: Interests */}
       <Card id="section-interests">

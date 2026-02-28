@@ -47,7 +47,13 @@ const demoData: OnboardingData = {
       description: "Built a personal finance tracker with React and Supabase. 500+ users in first month.",
     },
   ],
-  skills: ["Python", "React", "TypeScript", "Figma", "SQL"],
+  skills: [
+    { id: "s1", name: "Python", proficiency: "advanced" },
+    { id: "s2", name: "React", proficiency: "advanced" },
+    { id: "s3", name: "TypeScript", proficiency: "intermediate" },
+    { id: "s4", name: "Figma", proficiency: "intermediate" },
+    { id: "s5", name: "SQL", proficiency: "advanced" },
+  ],
   interests: ["Fintech", "UI Design", "Sustainability"],
   badges: [
     { id: "1", title: "Hackathon Winner", issuer: "MLH", dateReceived: "2025-01", category: "Competition", icon: "🏆" },

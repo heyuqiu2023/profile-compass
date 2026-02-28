@@ -82,8 +82,8 @@ const StepSkills = ({ data, updateData }: Props) => {
       <TagInput
         label="Skills"
         placeholder="e.g. Python, Financial Modelling, Figma"
-        tags={data.skills}
-        onChange={(skills) => updateData({ skills })}
+        tags={data.skills.map((s) => s.name)}
+        onChange={(names) => updateData({ skills: names.map((n, i) => ({ id: data.skills[i]?.id || crypto.randomUUID(), name: n, proficiency: data.skills[i]?.proficiency || "intermediate" })) })}
       />
 
       <TagInput

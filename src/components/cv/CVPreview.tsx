@@ -121,8 +121,8 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
 
     const headingStyle = `${t.heading} ${t.headingBorder}`;
 
-    const isSkillMatched = (skill: string) =>
-      matchedSkills ? matchedSkills.has(skill.toLowerCase()) : false;
+    const isSkillMatched = (skillName: string) =>
+      matchedSkills ? matchedSkills.has(skillName.toLowerCase()) : false;
 
     const sections: Record<string, JSX.Element | null> = {
       education: visibility.education ? (
@@ -173,17 +173,18 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
           </h2>
           <div className="flex flex-wrap gap-1">
             {data.skills.map((skill) => {
-              const matched = isSkillMatched(skill);
+              const matched = isSkillMatched(skill.name);
+              const dots = skill.proficiency === "expert" ? "●●●●" : skill.proficiency === "advanced" ? "●●●○" : skill.proficiency === "intermediate" ? "●●○○" : "●○○○";
               return (
                 <span
-                  key={skill}
+                  key={skill.id}
                   className={`text-[8px] px-1.5 py-0.5 rounded-sm font-medium ${
                     matched
                       ? "bg-[hsl(213,52%,24%)] text-white"
                       : `${t.skillBg} ${t.skillText}`
                   }`}
                 >
-                  {skill}
+                  {skill.name} <span className="opacity-50 ml-0.5">{dots}</span>
                 </span>
               );
             })}
