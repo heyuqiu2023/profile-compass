@@ -170,7 +170,7 @@ const SkillsSection = ({ skills, onChange }: { skills: Skill[]; onChange: (s: Sk
     toast.success("Skill removed");
   };
 
-  const getProfLevel = (p: Proficiency) => PROFICIENCY_LEVELS.find((l) => l.value === p)!;
+  const getProfLevel = (p: Proficiency) => PROFICIENCY_LEVELS.find((l) => l.value === p) ?? PROFICIENCY_LEVELS[1];
 
   return (
     <Card id="section-skills">
