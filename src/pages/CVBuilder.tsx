@@ -83,7 +83,7 @@ const CVBuilder = () => {
   const [saveOpen, setSaveOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [saving, setSaving] = useState(false);
-  const [jobDescription, setJobDescription] = useState("");
+  const [contextDescription, setContextDescription] = useState("");
   const previewRef = useRef<HTMLDivElement>(null);
 
   const selectPurpose = (p: CVPurpose) => {
@@ -105,14 +105,29 @@ const CVBuilder = () => {
     });
   };
 
+  const contextFieldConfig: Record<CVPurpose, { label: string; placeholder: string }> = {
+    job: {
+      label: "Paste a job description (optional)",
+      placeholder: "Paste the job listing here to tailor your CV...",
+    },
+    university: {
+      label: "Paste the programme description (optional)",
+      placeholder: "Paste the university course or programme details here — we'll tailor your CV to match what they're looking for...",
+    },
+    social: {
+      label: "Describe the context (optional)",
+      placeholder: "What's the occasion? e.g. 'Tech networking event in London', 'Startup community meetup', 'Sharing with a recruiter on LinkedIn'...",
+    },
+  };
+
   // Matched skills for CV preview highlighting
   const matchedSkillsSet = useMemo(() => {
-    if (purpose !== "job" || !jobDescription.trim()) return undefined;
-    const result = computeCVScore(data, jobDescription);
+    if (!purpose || !contextDescription.trim()) return undefined;
+    const result = computeCVScore(data, contextDescription);
     return new Set(result.matchedSkillNames.map((s) => s.toLowerCase()));
-  }, [data, jobDescription, purpose]);
+  }, [data, contextDescription, purpose]);
 
-  const showScore = purpose === "job" && jobDescription.trim().length > 0;
+  const showScore = !!purpose && contextDescription.trim().length > 0;
 
   const exportPDF = useCallback(async () => {
     if (!previewRef.current) return;
@@ -192,17 +207,17 @@ const CVBuilder = () => {
             ))}
           </div>
 
-          {/* Job Description field */}
-          {purpose === "job" && (
+          {/* Context description field — adapts label/placeholder per purpose */}
+          {purpose && (
             <div className="space-y-2">
-              <Label htmlFor="jd-input" className="text-sm font-medium text-foreground">
-                Paste a job description (optional)
+              <Label htmlFor="context-input" className="text-sm font-medium text-foreground">
+                {contextFieldConfig[purpose].label}
               </Label>
               <Textarea
-                id="jd-input"
-                placeholder="Paste the job listing here to tailor your CV..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
+                id="context-input"
+                placeholder={contextFieldConfig[purpose].placeholder}
+                value={contextDescription}
+                onChange={(e) => setContextDescription(e.target.value)}
                 className="min-h-[120px] resize-y"
               />
             </div>
@@ -249,7 +264,7 @@ const CVBuilder = () => {
             <div className="space-y-4">
               {/* CV Score Dashboard */}
               {showScore && (
-                <CVScoreDashboard data={data} jobDescription={jobDescription} />
+              <CVScoreDashboard data={data} jobDescription={contextDescription} />
               )}
 
               {/* Preview */}
@@ -290,17 +305,17 @@ const CVBuilder = () => {
                   </div>
                 </div>
 
-                {/* JD textarea on step 2 */}
-                {purpose === "job" && (
+                {/* Context textarea on step 2 */}
+                {purpose && (
                   <div className="space-y-2">
-                    <Label htmlFor="jd-input-2" className="text-xs font-medium text-foreground">
-                      Job description
+                    <Label htmlFor="context-input-2" className="text-xs font-medium text-foreground">
+                      {contextFieldConfig[purpose].label.replace(" (optional)", "")}
                     </Label>
                     <Textarea
-                      id="jd-input-2"
-                      placeholder="Paste the job listing here..."
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
+                      id="context-input-2"
+                      placeholder={contextFieldConfig[purpose].placeholder}
+                      value={contextDescription}
+                      onChange={(e) => setContextDescription(e.target.value)}
                       className="min-h-[80px] resize-y text-xs"
                     />
                   </div>
@@ -319,8 +334,8 @@ const CVBuilder = () => {
                     <h3 className="font-semibold text-foreground text-sm mb-3">Experience entries</h3>
                     <div className="space-y-2">
                       {data.experiences.map((exp) => {
-                        const isRelevant = purpose === "job" && jobDescription.trim()
-                          ? experienceMatchesJD(exp.description, jobDescription)
+                        const isRelevant = contextDescription.trim()
+                          ? experienceMatchesJD(exp.description, contextDescription)
                           : false;
                         return (
                           <label key={exp.id} className="flex items-center gap-2 cursor-pointer">
@@ -365,7 +380,7 @@ const CVBuilder = () => {
 
           {/* CV Score Dashboard on export step */}
           {showScore && (
-            <CVScoreDashboard data={data} jobDescription={jobDescription} />
+            <CVScoreDashboard data={data} jobDescription={contextDescription} />
           )}
 
           <div className="overflow-auto rounded-lg border bg-muted/30 p-4 flex justify-center">
