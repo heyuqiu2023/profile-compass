@@ -1,0 +1,83 @@
+import { createContext, useContext, useState, ReactNode } from "react";
+import { OnboardingData, defaultOnboardingData } from "@/types/onboarding";
+
+// Demo data matching ProfileEditor
+const demoData: OnboardingData = {
+  ...defaultOnboardingData,
+  firstName: "Alex",
+  lastName: "Chen",
+  headline: "CS student at UCL",
+  university: "University College London",
+  course: "BSc Computer Science",
+  yearOfStudy: "2nd Year",
+  expectedGraduation: "2027",
+  bio: "Passionate about building products at the intersection of tech and finance.",
+  location: "London, UK",
+  linkedinUrl: "https://linkedin.com/in/alexchen",
+  githubUrl: "https://github.com/alexchen",
+  experiences: [
+    {
+      id: "1",
+      type: "Internship",
+      title: "Software Engineering Intern",
+      organisation: "Google",
+      startDate: "2025-06",
+      endDate: "",
+      isCurrent: true,
+      description: "Working on frontend infrastructure for Google Cloud Console. Built reusable component library used by 20+ teams.",
+    },
+    {
+      id: "2",
+      type: "Society Role",
+      title: "President",
+      organisation: "UCL Tech Society",
+      startDate: "2024-09",
+      endDate: "2025-06",
+      isCurrent: false,
+      description: "Led a team of 30 committee members. Organised 15+ events including hackathons and speaker sessions.",
+    },
+    {
+      id: "3",
+      type: "Project",
+      title: "FinTrack",
+      organisation: "Personal Project",
+      startDate: "2024-03",
+      endDate: "2024-06",
+      isCurrent: false,
+      description: "Built a personal finance tracker with React and Supabase. 500+ users in first month.",
+    },
+  ],
+  skills: ["Python", "React", "TypeScript", "Figma", "SQL"],
+  interests: ["Fintech", "UI Design", "Sustainability"],
+  badges: [
+    { id: "1", title: "Hackathon Winner", issuer: "MLH", dateReceived: "2025-01", category: "Competition", icon: "🏆" },
+    { id: "2", title: "Dean's List 2025", issuer: "UCL", dateReceived: "2025-06", category: "Award", icon: "🎓" },
+    { id: "3", title: "AWS Cloud Practitioner", issuer: "Amazon Web Services", dateReceived: "2024-11", category: "Certification", icon: "💻" },
+  ],
+};
+
+interface ProfileContextType {
+  data: OnboardingData;
+  update: (partial: Partial<OnboardingData>) => void;
+  setData: React.Dispatch<React.SetStateAction<OnboardingData>>;
+}
+
+const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
+
+export const ProfileProvider = ({ children }: { children: ReactNode }) => {
+  const [data, setData] = useState<OnboardingData>(demoData);
+  const update = (partial: Partial<OnboardingData>) =>
+    setData((prev) => ({ ...prev, ...partial }));
+
+  return (
+    <ProfileContext.Provider value={{ data, update, setData }}>
+      {children}
+    </ProfileContext.Provider>
+  );
+};
+
+export const useProfile = () => {
+  const ctx = useContext(ProfileContext);
+  if (!ctx) throw new Error("useProfile must be used within ProfileProvider");
+  return ctx;
+};
