@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp, Briefcase, CalendarDays } from "lucide-react";
+import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp, Briefcase, CalendarDays, ExternalLink, ShieldCheck } from "lucide-react";
 import { THEMES, ThemeId, ThemeColors } from "@/lib/themes";
 import { ACTIVITY_TYPE_COLORS } from "@/types/onboarding";
 
@@ -54,6 +54,11 @@ const demoSkills = [
 ];
 const demoInterests = ["Fintech", "UI Design", "Sustainability", "Machine Learning", "Open Source"];
 
+const demoCertifications = [
+  { id: "c1", name: "AWS Cloud Practitioner", issuer: "Amazon Web Services", issueDate: "2024-11", expiryDate: "2027-11", noExpiry: false, credentialId: "AWS-CLP-2024-98765", credentialUrl: "https://aws.amazon.com/verification" },
+  { id: "c2", name: "Google Analytics Professional", issuer: "Google", issueDate: "2024-06", expiryDate: "", noExpiry: true, credentialId: "", credentialUrl: "" },
+];
+
 const demoActivities = [
   { id: "1", title: "Attended UCL AI Summit 2025", type: "Conference", activityDate: "2025-03", note: "Met 3 potential co-founders" },
   { id: "2", title: "Volunteered at Freshers' Fair", type: "Event", activityDate: "2024-09", note: "Helped run the Tech Society stall" },
@@ -65,11 +70,12 @@ const demoProfiles: Record<string, {
   experiences: typeof demoExperiences;
   badges: typeof demoBadges;
   activities: typeof demoActivities;
+  certifications: typeof demoCertifications;
   skills: typeof demoSkills;
   interests: string[];
 } | undefined> = {};
 
-demoProfiles["demotozero"] = { profile: demoProfile, experiences: demoExperiences, badges: demoBadges, activities: demoActivities, skills: demoSkills, interests: demoInterests };
+demoProfiles["demotozero"] = { profile: demoProfile, experiences: demoExperiences, badges: demoBadges, activities: demoActivities, certifications: demoCertifications, skills: demoSkills, interests: demoInterests };
 
 const formatDate = (d: string) => {
   if (!d) return "Present";
@@ -144,7 +150,7 @@ const PublicProfile = () => {
     );
   }
 
-  const { profile, experiences, badges, activities, skills, interests } = profileData;
+  const { profile, experiences, badges, activities, certifications, skills, interests } = profileData;
   const themeId = (profile.theme || "navy") as ThemeId;
   const theme = THEMES[themeId] || THEMES.navy;
   const c = theme.colors;
@@ -341,6 +347,46 @@ const PublicProfile = () => {
           </FadeInSection>
         </div>
       </section>
+
+      {/* Certifications */}
+      {certifications.length > 0 && (
+        <section className="pb-12 md:pb-16">
+          <div className="container max-w-3xl px-6">
+            <FadeInSection><h2 className="text-xl font-bold mb-4" style={{ color: c.text }}>Certifications</h2></FadeInSection>
+            <div className="space-y-3">
+              {certifications.map((cert, i) => (
+                <FadeInSection key={cert.id} delay={i * 0.06}>
+                  <div
+                    className="flex items-start gap-3 p-4 rounded-lg border"
+                    style={{
+                      backgroundColor: c.isDark ? c.secondary + "10" : c.accent + "06",
+                      borderColor: c.isDark ? c.secondary + "25" : c.accent + "15",
+                    }}
+                  >
+                    <ShieldCheck className="w-5 h-5 mt-0.5 shrink-0" style={{ color: c.accent }} />
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-sm" style={{ color: c.text }}>{cert.name}</h4>
+                      <p className="text-sm" style={{ color: c.muted }}>{cert.issuer}</p>
+                      <p className="text-xs mt-0.5" style={{ color: c.muted }}>
+                        Issued {formatDate(cert.issueDate)}
+                        {cert.noExpiry ? <span style={{ color: c.muted + "80" }}> · No expiry</span> : cert.expiryDate ? ` — Expires ${formatDate(cert.expiryDate)}` : ""}
+                      </p>
+                      {cert.credentialUrl && (
+                        <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs mt-1 transition-colors"
+                          style={{ color: c.accent }}
+                        >
+                          <ExternalLink className="w-3 h-3" /> Verify
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </FadeInSection>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Interests */}
       <section className="pb-16 md:pb-20">
