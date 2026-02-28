@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
   OnboardingData, Experience, BadgeEntry, ActivityEntry, Skill, Proficiency, CertificationEntry,
+  EducationEntry, LanguageEntry, LanguageProficiency,
   EXPERIENCE_TYPES, BADGE_CATEGORIES, BADGE_ICONS,
   ACTIVITY_TYPES, ACTIVITY_TYPE_COLORS, YEAR_OPTIONS, PROFICIENCY_LEVELS,
+  LANGUAGE_PROFICIENCY_LEVELS,
 } from "@/types/onboarding";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Input } from "@/components/ui/input";
@@ -16,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { Camera, Plus, Trash2, Save, X, Pencil, Linkedin, Github, Globe, ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
+import { Camera, Plus, Trash2, Save, X, Pencil, Linkedin, Github, Globe, ArrowRight, ExternalLink, ShieldCheck, GraduationCap, Languages, Mail, Phone, Palette } from "lucide-react";
 import { toast } from "sonner";
 
 // ─── Colors ───
@@ -64,7 +66,7 @@ const TagInput = ({ tags, onChange, placeholder }: { tags: string[]; onChange: (
   );
 };
 
-// ─── Experience Form ───
+// ─── Experience Form (with structured fields) ───
 const ExperienceForm = ({ exp, onSave, onCancel }: { exp: Experience; onSave: (e: Experience) => void; onCancel: () => void }) => {
   const [form, setForm] = useState(exp);
   const u = (p: Partial<Experience>) => setForm((f) => ({ ...f, ...p }));
@@ -90,15 +92,223 @@ const ExperienceForm = ({ exp, onSave, onCancel }: { exp: Experience; onSave: (e
             <div className="flex items-center gap-2 mt-1"><Switch checked={form.isCurrent} onCheckedChange={(v) => u({ isCurrent: v, endDate: "" })} /><span className="text-xs text-muted-foreground">I currently do this</span></div>
           </div>
         </div>
+
+        {/* Structured description fields */}
         <div className="space-y-2">
-          <Label>Description</Label>
-          <Textarea value={form.description} onChange={(e) => u({ description: e.target.value.slice(0, 500) })} rows={3} maxLength={500} placeholder="What did you do?" />
-          <p className="text-xs text-muted-foreground text-right">{form.description.length}/500</p>
+          <Label>Key Responsibilities</Label>
+          <Textarea value={form.responsibilities} onChange={(e) => u({ responsibilities: e.target.value.slice(0, 500) })} rows={3} maxLength={500} placeholder="What were your main responsibilities?" />
+          <p className="text-xs text-muted-foreground text-right">{form.responsibilities.length}/500</p>
         </div>
+        <div className="space-y-2">
+          <Label>Key Achievements</Label>
+          <Textarea value={form.achievements} onChange={(e) => u({ achievements: e.target.value.slice(0, 500) })} rows={3} maxLength={500} placeholder="Results, impact, numbers — what did you achieve?" />
+          <p className="text-xs text-muted-foreground text-right">{form.achievements.length}/500</p>
+        </div>
+        <div className="space-y-2">
+          <Label>Tools & Technologies</Label>
+          <TagInput tags={form.tools} onChange={(tools) => u({ tools })} placeholder="e.g. React, Python, Figma — press Enter to add" />
+        </div>
+
+        {/* Legacy description field */}
+        {form.description && (
+          <div className="space-y-2 p-3 rounded-lg border border-amber-200 bg-amber-50">
+            <Label className="text-amber-800">Legacy Description (migrate to structured fields above)</Label>
+            <Textarea value={form.description} onChange={(e) => u({ description: e.target.value.slice(0, 500) })} rows={2} maxLength={500} className="border-amber-200" />
+            <p className="text-xs text-amber-600">This field is kept for backwards compatibility. Move content to Responsibilities/Achievements above.</p>
+          </div>
+        )}
+
         <div className="flex gap-2 justify-end">
           <Button variant="ghost" size="sm" onClick={onCancel}>Cancel</Button>
           <Button size="sm" onClick={() => onSave(form)} className="gap-1"><Save className="w-3.5 h-3.5" /> Save</Button>
         </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// ─── Education Form Dialog ───
+const EducationFormDialog = ({ entry, open, onOpenChange, onSave }: {
+  entry: EducationEntry | null; open: boolean; onOpenChange: (o: boolean) => void; onSave: (e: EducationEntry) => void;
+}) => {
+  const empty: EducationEntry = { id: crypto.randomUUID(), institution: "", degree: "", startDate: "", endDate: "", isCurrent: false, grade: "", coursework: "", thesisTitle: "", description: "" };
+  const [form, setForm] = useState<EducationEntry>(entry || empty);
+  useEffect(() => { setForm(entry || { ...empty, id: crypto.randomUUID() }); }, [entry, open]);
+  const u = (p: Partial<EducationEntry>) => setForm((f) => ({ ...f, ...p }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader><DialogTitle>{entry ? "Edit Education" : "Add Education"}</DialogTitle></DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2"><Label>Institution</Label><Input value={form.institution} onChange={(e) => u({ institution: e.target.value })} placeholder="e.g. University College London" /></div>
+          <div className="space-y-2"><Label>Degree & Field of Study</Label><Input value={form.degree} onChange={(e) => u({ degree: e.target.value })} placeholder="e.g. MEng Computer Science" /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Start date</Label><Input type="month" value={form.startDate} onChange={(e) => u({ startDate: e.target.value })} /></div>
+            <div className="space-y-2">
+              <Label>End date</Label>
+              <Input type="month" value={form.endDate} onChange={(e) => u({ endDate: e.target.value })} disabled={form.isCurrent} />
+              <div className="flex items-center gap-2 mt-1"><Switch checked={form.isCurrent} onCheckedChange={(v) => u({ isCurrent: v, endDate: "" })} /><span className="text-xs text-muted-foreground">Currently studying</span></div>
+            </div>
+          </div>
+          <div className="space-y-2"><Label>Grade / GPA (optional)</Label><Input value={form.grade} onChange={(e) => u({ grade: e.target.value })} placeholder="e.g. First Class, 3.8/4.0, 2:1" /></div>
+          <div className="space-y-2">
+            <Label>Relevant Coursework (optional)</Label>
+            <Textarea value={form.coursework} onChange={(e) => u({ coursework: e.target.value.slice(0, 300) })} rows={2} maxLength={300} placeholder="e.g. Algorithms, Machine Learning, Databases" />
+            <p className="text-xs text-muted-foreground text-right">{form.coursework.length}/300</p>
+          </div>
+          <div className="space-y-2"><Label>Thesis / Dissertation Title (optional)</Label><Input value={form.thesisTitle} onChange={(e) => u({ thesisTitle: e.target.value })} placeholder="e.g. Transformer Models for Financial Sentiment" /></div>
+          <div className="space-y-2">
+            <Label>Description (optional)</Label>
+            <Textarea value={form.description} onChange={(e) => u({ description: e.target.value.slice(0, 300) })} rows={2} maxLength={300} placeholder="Study abroad, exchange, notable academic work" />
+            <p className="text-xs text-muted-foreground text-right">{form.description.length}/300</p>
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <Button onClick={() => { if (!form.institution.trim() || !form.degree.trim()) { toast.error("Institution and degree are required"); return; } onSave(form); onOpenChange(false); }}>{entry ? "Update" : "Add"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// ─── Education Section ───
+const EducationSection = ({ education, onChange }: { education: EducationEntry[]; onChange: (e: EducationEntry[]) => void }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<EducationEntry | null>(null);
+
+  const saveEntry = (e: EducationEntry) => {
+    if (editingEntry) {
+      onChange(education.map((x) => x.id === editingEntry.id ? e : x));
+      toast.success("Education updated");
+    } else {
+      onChange([e, ...education]);
+      toast.success("Education added");
+    }
+    setEditingEntry(null);
+  };
+
+  const deleteEntry = (id: string) => { onChange(education.filter((e) => e.id !== id)); toast.success("Education removed"); };
+
+  const sorted = [...education].sort((a, b) => {
+    if (a.isCurrent && !b.isCurrent) return -1;
+    if (!a.isCurrent && b.isCurrent) return 1;
+    return b.startDate.localeCompare(a.startDate);
+  });
+
+  return (
+    <>
+      <Card id="section-education">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-lg">Education</CardTitle>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { setEditingEntry(null); setDialogOpen(true); }}>
+            <Plus className="w-3.5 h-3.5" /> Add Education
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {sorted.length > 0 ? (
+            <div className="space-y-3">
+              {sorted.map((entry) => (
+                <div key={entry.id} className="flex items-start justify-between gap-3 p-4 rounded-lg border border-border group hover:shadow-sm transition-shadow">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <GraduationCap className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-foreground text-sm leading-tight">{entry.degree}</h4>
+                      <p className="text-sm text-muted-foreground">{entry.institution}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatDate(entry.startDate)} — {entry.isCurrent ? "Present" : formatDate(entry.endDate)}
+                        {entry.grade && <span className="ml-2">· {entry.grade}</span>}
+                      </p>
+                      {entry.coursework && <p className="text-xs text-muted-foreground mt-1 italic">{entry.coursework}</p>}
+                      {entry.thesisTitle && <p className="text-xs text-muted-foreground mt-0.5">Thesis: {entry.thesisTitle}</p>}
+                    </div>
+                  </div>
+                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingEntry(entry); setDialogOpen(true); }}><Pencil className="w-3 h-3" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteEntry(entry.id)}><Trash2 className="w-3 h-3" /></Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">No education entries added yet.</p>
+          )}
+        </CardContent>
+      </Card>
+      <EducationFormDialog entry={editingEntry} open={dialogOpen} onOpenChange={setDialogOpen} onSave={saveEntry} />
+    </>
+  );
+};
+
+// ─── Languages Section ───
+const LanguagesSection = ({ languages, onChange }: { languages: LanguageEntry[]; onChange: (l: LanguageEntry[]) => void }) => {
+  const [adding, setAdding] = useState(false);
+  const [newLang, setNewLang] = useState("");
+  const [newProf, setNewProf] = useState<LanguageProficiency>("Conversational");
+
+  const addLanguage = () => {
+    const lang = newLang.trim();
+    if (!lang) return;
+    if (languages.some((l) => l.language.toLowerCase() === lang.toLowerCase())) { toast.error("Language already added"); return; }
+    onChange([...languages, { id: crypto.randomUUID(), language: lang, proficiency: newProf }]);
+    setNewLang(""); setNewProf("Conversational"); setAdding(false);
+    toast.success("Language added");
+  };
+
+  const removeLang = (id: string) => { onChange(languages.filter((l) => l.id !== id)); toast.success("Language removed"); };
+
+  const dots = (prof: LanguageProficiency) => {
+    const level = LANGUAGE_PROFICIENCY_LEVELS.find((l) => l.value === prof) ?? LANGUAGE_PROFICIENCY_LEVELS[3];
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={`w-2 h-2 rounded-full ${i < level.dots ? "bg-primary" : "bg-muted"}`} />
+    ));
+  };
+
+  return (
+    <Card id="section-languages">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-lg">Languages</CardTitle>
+        {!adding && (
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setAdding(true)}>
+            <Plus className="w-3.5 h-3.5" /> Add Language
+          </Button>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {adding && (
+          <div className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg border border-primary/20 bg-primary/5">
+            <Input value={newLang} onChange={(e) => setNewLang(e.target.value)} placeholder="Language name" className="flex-1"
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addLanguage(); } }} />
+            <Select value={newProf} onValueChange={(v) => setNewProf(v as LanguageProficiency)}>
+              <SelectTrigger className="w-full sm:w-[180px]"><SelectValue /></SelectTrigger>
+              <SelectContent>{LANGUAGE_PROFICIENCY_LEVELS.map((l) => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent>
+            </Select>
+            <div className="flex gap-1.5">
+              <Button size="sm" onClick={addLanguage}>Add</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setAdding(false); setNewLang(""); }}>Cancel</Button>
+            </div>
+          </div>
+        )}
+
+        {languages.length > 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {languages.map((lang) => (
+              <div key={lang.id} className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-border group hover:shadow-sm transition-shadow">
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{lang.language}</p>
+                  <p className="text-xs text-muted-foreground">{lang.proficiency}</p>
+                </div>
+                <div className="flex gap-0.5">{dots(lang.proficiency)}</div>
+                <button onClick={() => removeLang(lang.id)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted">
+                  <X className="w-3 h-3 text-muted-foreground" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          !adding && <p className="text-sm text-muted-foreground italic">No languages added yet.</p>
+        )}
       </CardContent>
     </Card>
   );
@@ -204,15 +414,11 @@ const SkillsSection = ({ skills, onChange }: { skills: Skill[]; onChange: (s: Sk
               const level = getProfLevel(skill.proficiency);
               return (
                 <div key={skill.id} className="relative p-3 rounded-lg border border-border hover:shadow-sm transition-shadow group">
-                  {/* Remove button */}
                   <button onClick={() => removeSkill(skill.id)}
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted">
                     <X className="w-3 h-3 text-muted-foreground" />
                   </button>
-
                   <p className="font-semibold text-foreground text-sm leading-tight pr-5">{skill.name}</p>
-
-                  {/* Inline proficiency edit */}
                   {editingId === skill.id ? (
                     <Select value={skill.proficiency} onValueChange={(v) => updateProficiency(skill.id, v as Proficiency)}>
                       <SelectTrigger className="h-6 text-[11px] mt-1.5 w-full"><SelectValue /></SelectTrigger>
@@ -223,8 +429,6 @@ const SkillsSection = ({ skills, onChange }: { skills: Skill[]; onChange: (s: Sk
                       {level.label}
                     </button>
                   )}
-
-                  {/* Progress bar */}
                   <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
                     <div className={`h-full rounded-full transition-all ${level.color}`} style={{ width: `${level.percent}%` }} />
                   </div>
@@ -416,7 +620,7 @@ const ProfileEditor = () => {
         </div>
       </div>
 
-      {/* Section 1: Header Area */}
+      {/* Section 1: Header Area with Contact */}
       <Card id="section-basics">
         <CardContent className="pt-8 space-y-6">
           {/* Photo */}
@@ -463,6 +667,25 @@ const ProfileEditor = () => {
           {/* Location */}
           <div className="space-y-2"><Label>Location</Label><Input value={data.location} onChange={(e) => update({ location: e.target.value })} /></div>
 
+          {/* Contact Details */}
+          <div className="border-t pt-4 mt-4">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Contact Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</Label>
+                <Input value={data.email} onChange={(e) => update({ email: e.target.value })} placeholder="alex@example.com" type="email" />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Phone (optional)</Label>
+                <Input value={data.phone} onChange={(e) => update({ phone: e.target.value })} placeholder="+44 7XXX XXXXXX" />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5"><Palette className="w-3.5 h-3.5" /> Portfolio URL (optional)</Label>
+                <Input value={data.portfolioUrl} onChange={(e) => update({ portfolioUrl: e.target.value })} placeholder="https://portfolio.example.com" />
+              </div>
+            </div>
+          </div>
+
           {/* Open To */}
           <div className="space-y-2">
             <Label>What are you open to?</Label>
@@ -498,6 +721,9 @@ const ProfileEditor = () => {
         </CardContent>
       </Card>
 
+      {/* Education Section */}
+      <EducationSection education={data.education} onChange={(education) => update({ education })} />
+
       {/* Section 3: Experiences */}
       <Card id="section-experiences">
         <CardHeader className="flex flex-row items-center justify-between">
@@ -511,7 +737,7 @@ const ProfileEditor = () => {
         <CardContent className="space-y-0">
           {addingExp && (
             <div className="mb-6">
-              <ExperienceForm exp={{ id: crypto.randomUUID(), type: "", title: "", organisation: "", startDate: "", endDate: "", isCurrent: false, description: "" }} onSave={saveExperience} onCancel={() => setAddingExp(false)} />
+              <ExperienceForm exp={{ id: crypto.randomUUID(), type: "", title: "", organisation: "", startDate: "", endDate: "", isCurrent: false, description: "", responsibilities: "", achievements: "", tools: [] }} onSave={saveExperience} onCancel={() => setAddingExp(false)} />
             </div>
           )}
           <div className="relative">
@@ -534,7 +760,28 @@ const ProfileEditor = () => {
                           </div>
                           <p className="text-sm text-muted-foreground mt-0.5">{exp.organisation}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{formatDate(exp.startDate)} — {exp.isCurrent ? "Present" : formatDate(exp.endDate)}</p>
-                          {exp.description && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{exp.description}</p>}
+                          {exp.responsibilities && (
+                            <div className="mt-2">
+                              <p className="text-xs font-medium text-foreground">Responsibilities</p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{exp.responsibilities}</p>
+                            </div>
+                          )}
+                          {exp.achievements && (
+                            <div className="mt-1.5">
+                              <p className="text-xs font-medium text-foreground">Achievements</p>
+                              <p className="text-sm text-muted-foreground leading-relaxed">{exp.achievements}</p>
+                            </div>
+                          )}
+                          {exp.tools.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {exp.tools.map((tool) => (
+                                <Badge key={tool} variant="secondary" className="text-[10px] py-0 px-1.5">{tool}</Badge>
+                              ))}
+                            </div>
+                          )}
+                          {exp.description && !exp.responsibilities && !exp.achievements && (
+                            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{exp.description}</p>
+                          )}
                         </div>
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingExpId(exp.id); setAddingExp(false); }}><Pencil className="w-3.5 h-3.5" /></Button>
@@ -590,6 +837,9 @@ const ProfileEditor = () => {
       <ActivityFormDialog activity={editingActivity} open={activityDialogOpen} onOpenChange={setActivityDialogOpen} onSave={saveActivity} />
 
       <SkillsSection skills={data.skills} onChange={(skills) => update({ skills })} />
+
+      {/* Languages Section */}
+      <LanguagesSection languages={data.languages} onChange={(languages) => update({ languages })} />
 
       {/* Section: Certifications */}
       <CertificationsSection certifications={data.certifications} onChange={(certifications) => update({ certifications })} />

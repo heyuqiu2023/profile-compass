@@ -83,6 +83,78 @@ export type Database = {
         }
         Relationships: []
       }
+      education: {
+        Row: {
+          coursework: string | null
+          created_at: string
+          degree: string
+          description: string | null
+          end_date: string | null
+          grade: string | null
+          id: string
+          institution: string
+          is_current: boolean
+          sort_order: number
+          start_date: string | null
+          thesis_title: string | null
+          user_id: string
+        }
+        Insert: {
+          coursework?: string | null
+          created_at?: string
+          degree?: string
+          description?: string | null
+          end_date?: string | null
+          grade?: string | null
+          id?: string
+          institution: string
+          is_current?: boolean
+          sort_order?: number
+          start_date?: string | null
+          thesis_title?: string | null
+          user_id: string
+        }
+        Update: {
+          coursework?: string | null
+          created_at?: string
+          degree?: string
+          description?: string | null
+          end_date?: string | null
+          grade?: string | null
+          id?: string
+          institution?: string
+          is_current?: boolean
+          sort_order?: number
+          start_date?: string | null
+          thesis_title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      languages: {
+        Row: {
+          created_at: string
+          id: string
+          language: string
+          proficiency: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language: string
+          proficiency?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language?: string
+          proficiency?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bio: string | null
@@ -96,6 +168,8 @@ export type Database = {
           linkedin_url: string | null
           location: string | null
           open_to: string | null
+          phone: string | null
+          portfolio_url: string | null
           profile_photo_url: string | null
           theme: string
           university: string | null
@@ -115,6 +189,8 @@ export type Database = {
           linkedin_url?: string | null
           location?: string | null
           open_to?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
           profile_photo_url?: string | null
           theme?: string
           university?: string | null
@@ -134,6 +210,8 @@ export type Database = {
           linkedin_url?: string | null
           location?: string | null
           open_to?: string | null
+          phone?: string | null
+          portfolio_url?: string | null
           profile_photo_url?: string | null
           theme?: string
           university?: string | null

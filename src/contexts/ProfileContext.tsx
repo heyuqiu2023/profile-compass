@@ -13,6 +13,9 @@ const demoData: OnboardingData = {
   expectedGraduation: "2027",
   bio: "Passionate about building products at the intersection of tech and finance.",
   location: "London, UK",
+  email: "alex.chen@ucl.ac.uk",
+  phone: "+44 7700 900123",
+  portfolioUrl: "https://alexchen.dev/portfolio",
   linkedinUrl: "https://linkedin.com/in/alexchen",
   githubUrl: "https://github.com/alexchen",
   experiences: [
@@ -25,6 +28,9 @@ const demoData: OnboardingData = {
       endDate: "",
       isCurrent: true,
       description: "Working on frontend infrastructure for Google Cloud Console. Built reusable component library used by 20+ teams.",
+      responsibilities: "Building reusable React components for the Cloud Console design system. Reviewing PRs and mentoring junior interns.",
+      achievements: "Component library adopted by 20+ teams. Improved page load times by 30% through code splitting.",
+      tools: ["React", "TypeScript", "Storybook", "GCP"],
     },
     {
       id: "2",
@@ -35,6 +41,9 @@ const demoData: OnboardingData = {
       endDate: "2025-06",
       isCurrent: false,
       description: "Led a team of 30 committee members. Organised 15+ events including hackathons and speaker sessions.",
+      responsibilities: "Managing 30 committee members. Planning event calendar. Managing £15k budget.",
+      achievements: "Grew membership from 200 to 500. Secured sponsorships from Google, Meta, Bloomberg.",
+      tools: ["Notion", "Slack", "Figma"],
     },
     {
       id: "3",
@@ -45,6 +54,23 @@ const demoData: OnboardingData = {
       endDate: "2024-06",
       isCurrent: false,
       description: "Built a personal finance tracker with React and Supabase. 500+ users in first month.",
+      responsibilities: "Full-stack development. UI/UX design. User research and testing.",
+      achievements: "500+ users in first month of launch. Featured on Product Hunt.",
+      tools: ["React", "Supabase", "Tailwind CSS", "Vercel"],
+    },
+  ],
+  education: [
+    {
+      id: "e1",
+      institution: "University College London",
+      degree: "BSc Computer Science",
+      startDate: "2023-09",
+      endDate: "",
+      isCurrent: true,
+      grade: "First Class (predicted)",
+      coursework: "Algorithms, Machine Learning, Software Engineering, Databases, Computer Architecture",
+      thesisTitle: "",
+      description: "",
     },
   ],
   skills: [
@@ -53,6 +79,11 @@ const demoData: OnboardingData = {
     { id: "s3", name: "TypeScript", proficiency: "intermediate" },
     { id: "s4", name: "Figma", proficiency: "intermediate" },
     { id: "s5", name: "SQL", proficiency: "advanced" },
+  ],
+  languages: [
+    { id: "l1", language: "English", proficiency: "Native" },
+    { id: "l2", language: "Mandarin", proficiency: "Fluent" },
+    { id: "l3", language: "French", proficiency: "Conversational" },
   ],
   certifications: [
     { id: "c1", name: "AWS Cloud Practitioner", issuer: "Amazon Web Services", issueDate: "2024-11", expiryDate: "2027-11", noExpiry: false, credentialId: "AWS-CLP-2024-98765", credentialUrl: "https://aws.amazon.com/verification" },

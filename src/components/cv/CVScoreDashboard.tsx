@@ -36,7 +36,7 @@ function calcExperienceMatch(experiences: OnboardingData["experiences"], jdText:
   if (keywords.length === 0) return 0;
   let matched = 0;
   for (const exp of experiences) {
-    const descLower = (exp.description + " " + exp.title + " " + exp.organisation).toLowerCase();
+    const descLower = (exp.description + " " + exp.title + " " + exp.organisation + " " + (exp.responsibilities || "") + " " + (exp.achievements || "") + " " + (exp.tools || []).join(" ")).toLowerCase();
     if (keywords.some((kw) => descLower.includes(kw))) matched++;
   }
   return Math.round((matched / experiences.length) * 100);
@@ -79,10 +79,11 @@ function calcKeywordCoverage(data: OnboardingData, jdText: string): number {
   const profileText = [
     data.firstName, data.lastName, data.headline, data.bio, data.location,
     data.university, data.course,
-    ...data.skills,
+    ...data.skills.map((s) => s.name),
     ...data.interests,
-    ...data.experiences.map((e) => `${e.title} ${e.organisation} ${e.description}`),
+    ...data.experiences.map((e) => `${e.title} ${e.organisation} ${e.description} ${e.responsibilities || ""} ${e.achievements || ""} ${(e.tools || []).join(" ")}`),
     ...data.badges.map((b) => `${b.title} ${b.issuer}`),
+    ...(data.languages || []).map((l) => l.language),
   ].join(" ").toLowerCase();
 
   let hits = 0;

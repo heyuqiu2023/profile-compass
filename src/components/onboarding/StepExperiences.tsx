@@ -22,6 +22,9 @@ const emptyExperience = (): Experience => ({
   endDate: "",
   isCurrent: false,
   description: "",
+  responsibilities: "",
+  achievements: "",
+  tools: [],
 });
 
 const StepExperiences = ({ data, updateData }: Props) => {
