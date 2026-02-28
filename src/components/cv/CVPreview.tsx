@@ -19,6 +19,7 @@ interface CVPreviewProps {
   purpose: CVPurpose;
   visibility: CVVisibility;
   template: CVTemplate;
+  matchedSkills?: Set<string>;
 }
 
 const sectionOrder: Record<CVPurpose, string[]> = {
@@ -104,7 +105,7 @@ const templateStyles: Record<CVTemplate, {
 };
 
 const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
-  ({ data, purpose, visibility, template }, ref) => {
+  ({ data, purpose, visibility, template, matchedSkills }, ref) => {
     const t = templateStyles[template];
 
     const visibleExperiences = data.experiences.filter((e) =>
@@ -119,6 +120,9 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
     };
 
     const headingStyle = `${t.heading} ${t.headingBorder}`;
+
+    const isSkillMatched = (skill: string) =>
+      matchedSkills ? matchedSkills.has(skill.toLowerCase()) : false;
 
     const sections: Record<string, JSX.Element | null> = {
       education: visibility.education ? (
@@ -168,11 +172,21 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
             Skills
           </h2>
           <div className="flex flex-wrap gap-1">
-            {data.skills.map((skill) => (
-              <span key={skill} className={`text-[8px] px-1.5 py-0.5 rounded-sm font-medium ${t.skillBg} ${t.skillText}`}>
-                {skill}
-              </span>
-            ))}
+            {data.skills.map((skill) => {
+              const matched = isSkillMatched(skill);
+              return (
+                <span
+                  key={skill}
+                  className={`text-[8px] px-1.5 py-0.5 rounded-sm font-medium ${
+                    matched
+                      ? "bg-[hsl(213,52%,24%)] text-white"
+                      : `${t.skillBg} ${t.skillText}`
+                  }`}
+                >
+                  {skill}
+                </span>
+              );
+            })}
           </div>
         </div>
       ) : null,
