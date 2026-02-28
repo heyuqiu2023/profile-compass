@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { OnboardingData } from "@/types/onboarding";
 
 /* ---------- Scoring helpers ---------- */
@@ -200,6 +201,7 @@ interface CVScoreDashboardProps {
 }
 
 const CVScoreDashboard = ({ data, jobDescription, purpose = "job" }: CVScoreDashboardProps) => {
+  const navigate = useNavigate();
   const result = useMemo(
     () => computeCVScore(data, jobDescription),
     [data, jobDescription]
@@ -305,15 +307,15 @@ const CVScoreDashboard = ({ data, jobDescription, purpose = "job" }: CVScoreDash
 
           {/* Improvement tips */}
           {(() => {
-            const tips: { icon: string; text: string }[] = [];
+            const tips: { icon: string; text: string; section: string }[] = [];
             if (result.experienceMatch < 50)
-              tips.push({ icon: "💼", text: "Add experiences with keywords that match this description." });
+              tips.push({ icon: "💼", text: "Add experiences with keywords that match this description.", section: "section-experiences" });
             if (result.skillAlignment < 50)
-              tips.push({ icon: "🎯", text: "Add more relevant skills to your profile to improve alignment." });
+              tips.push({ icon: "🎯", text: "Add more relevant skills to your profile to improve alignment.", section: "section-skills" });
             if (result.educationFit < 50)
-              tips.push({ icon: "🎓", text: "Ensure your course or university details match what's mentioned." });
+              tips.push({ icon: "🎓", text: "Ensure your course or university details match what's mentioned.", section: "section-basics" });
             if (result.keywordCoverage < 50)
-              tips.push({ icon: "🔑", text: "Your profile is missing key terms — try updating your bio or experience descriptions." });
+              tips.push({ icon: "🔑", text: "Your profile is missing key terms — try updating your bio or experience descriptions.", section: "section-about" });
             if (tips.length === 0) return null;
             return (
               <motion.div
@@ -325,9 +327,15 @@ const CVScoreDashboard = ({ data, jobDescription, purpose = "job" }: CVScoreDash
               >
                 <p className="text-[10px] font-semibold" style={{ color: "hsl(30,60%,40%)" }}>Tips to improve your score</p>
                 {tips.map((tip, i) => (
-                  <p key={i} className="text-[10px] leading-relaxed" style={{ color: "hsl(30,30%,35%)" }}>
-                    {tip.icon} {tip.text}
-                  </p>
+                  <button
+                    key={i}
+                    onClick={() => navigate(`/dashboard/profile#${tip.section}`)}
+                    className="flex items-center gap-1 text-[10px] leading-relaxed text-left w-full rounded px-1 -mx-1 transition-colors hover:bg-[hsl(45,80%,90%)]"
+                    style={{ color: "hsl(30,30%,35%)" }}
+                  >
+                    <span>{tip.icon}</span>
+                    <span className="underline decoration-dotted underline-offset-2">{tip.text}</span>
+                  </button>
                 ))}
               </motion.div>
             );

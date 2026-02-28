@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { OnboardingData, Experience, BadgeEntry, EXPERIENCE_TYPES, BADGE_CATEGORIES, BADGE_ICONS, YEAR_OPTIONS } from "@/types/onboarding";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Input } from "@/components/ui/input";
@@ -210,6 +211,14 @@ const ProfileEditor = () => {
   const [editingBadgeId, setEditingBadgeId] = useState<string | null>(null);
   const [addingBadge, setAddingBadge] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.getElementById(location.hash.slice(1));
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+  }, [location.hash]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -274,7 +283,7 @@ const ProfileEditor = () => {
       </div>
 
       {/* Basics */}
-      <Card>
+      <Card id="section-basics">
         <CardHeader><CardTitle className="text-lg">Basics</CardTitle></CardHeader>
         <CardContent className="space-y-6">
           <div className="flex justify-center">
@@ -331,7 +340,7 @@ const ProfileEditor = () => {
       </Card>
 
       {/* About */}
-      <Card>
+      <Card id="section-about">
         <CardHeader><CardTitle className="text-lg">About</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -361,7 +370,7 @@ const ProfileEditor = () => {
       </Card>
 
       {/* Experiences Timeline */}
-      <Card>
+      <Card id="section-experiences">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Experiences</CardTitle>
           {!addingExp && (
@@ -453,7 +462,7 @@ const ProfileEditor = () => {
       </Card>
 
       {/* Skills & Interests */}
-      <Card>
+      <Card id="section-skills">
         <CardHeader><CardTitle className="text-lg">Skills & Interests</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -468,7 +477,7 @@ const ProfileEditor = () => {
       </Card>
 
       {/* Badges Grid */}
-      <Card>
+      <Card id="section-badges">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">Badges</CardTitle>
           {!addingBadge && (
