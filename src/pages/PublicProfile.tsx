@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PROFICIENCY_LEVELS, Proficiency } from "@/types/onboarding";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +42,16 @@ const demoBadges = [
   { id: "5", title: "Best Paper Award", issuer: "UCL CS Department", category: "Award", icon: "📝" },
 ];
 
-const demoSkills = ["Python", "React", "TypeScript", "Figma", "SQL", "TensorFlow", "Docker", "Node.js"];
+const demoSkills = [
+  { id: "s1", name: "Python", proficiency: "advanced" as Proficiency },
+  { id: "s2", name: "React", proficiency: "advanced" as Proficiency },
+  { id: "s3", name: "TypeScript", proficiency: "intermediate" as Proficiency },
+  { id: "s4", name: "Figma", proficiency: "intermediate" as Proficiency },
+  { id: "s5", name: "SQL", proficiency: "advanced" as Proficiency },
+  { id: "s6", name: "TensorFlow", proficiency: "beginner" as Proficiency },
+  { id: "s7", name: "Docker", proficiency: "intermediate" as Proficiency },
+  { id: "s8", name: "Node.js", proficiency: "intermediate" as Proficiency },
+];
 const demoInterests = ["Fintech", "UI Design", "Sustainability", "Machine Learning", "Open Source"];
 
 const demoActivities = [
@@ -55,7 +65,7 @@ const demoProfiles: Record<string, {
   experiences: typeof demoExperiences;
   badges: typeof demoBadges;
   activities: typeof demoActivities;
-  skills: string[];
+  skills: typeof demoSkills;
   interests: string[];
 } | undefined> = {};
 
@@ -293,25 +303,40 @@ const PublicProfile = () => {
         </div>
       </section>
 
-      {/* Skills */}
       <section className="pb-12 md:pb-16">
         <div className="container max-w-3xl px-6">
           <FadeInSection>
             <h2 className="text-xl font-bold mb-4" style={{ color: c.text }}>Skills</h2>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill, i) => (
-                <motion.span
-                  key={skill}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.04, duration: 0.3 }}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium"
-                  style={{ backgroundColor: c.accent + "18", color: c.accent }}
-                >
-                  {skill}
-                </motion.span>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {skills.map((skill, i) => {
+                const level = PROFICIENCY_LEVELS.find((l) => l.value === skill.proficiency)!;
+                return (
+                  <motion.div
+                    key={skill.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.04, duration: 0.3 }}
+                    className="p-3 rounded-lg border"
+                    style={{
+                      backgroundColor: c.isDark ? c.secondary + "10" : c.accent + "06",
+                      borderColor: c.isDark ? c.secondary + "25" : c.accent + "15",
+                    }}
+                  >
+                    <p className="font-semibold text-sm" style={{ color: c.text }}>{skill.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: c.muted }}>{level.label}</p>
+                    <div className="mt-2 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: c.isDark ? c.secondary + "20" : "#e5e7eb" }}>
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${level.percent}%`,
+                          backgroundColor: level.value === "expert" ? "#059669" : level.value === "advanced" ? c.accent : level.value === "intermediate" ? "#d4a574" : (c.muted + "60"),
+                        }}
+                      />
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </FadeInSection>
         </div>

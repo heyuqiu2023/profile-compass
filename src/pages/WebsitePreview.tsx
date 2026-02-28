@@ -151,14 +151,14 @@ const WebsitePreview = () => {
               <div className="flex flex-wrap gap-1.5 mt-4 justify-center">
                 {data.skills.slice(0, 4).map((s) => (
                   <span
-                    key={s}
+                    key={s.id}
                     className="text-[10px] px-2.5 py-1 rounded-full font-medium"
                     style={{
                       backgroundColor: THEMES[currentTheme].colors.accent + "18",
                       color: THEMES[currentTheme].colors.accent,
                     }}
                   >
-                    {s}
+                    {s.name}
                   </span>
                 ))}
               </div>

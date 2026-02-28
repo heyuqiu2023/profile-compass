@@ -90,7 +90,7 @@ const StepReview = ({ data, onEdit }: Props) => {
                 <p className="text-xs font-medium text-muted-foreground mb-1">Skills</p>
                 <div className="flex flex-wrap gap-1.5">
                   {data.skills.map((s) => (
-                    <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+                    <Badge key={s.id} variant="secondary" className="text-xs">{s.name}</Badge>
                   ))}
                 </div>
               </div>

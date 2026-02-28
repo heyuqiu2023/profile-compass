@@ -42,12 +42,12 @@ function calcExperienceMatch(experiences: OnboardingData["experiences"], jdText:
   return Math.round((matched / experiences.length) * 100);
 }
 
-function calcSkillAlignment(skills: string[], jdText: string): { score: number; matchedNames: string[] } {
+function calcSkillAlignment(skills: { name: string; proficiency: string }[], jdText: string): { score: number; matchedNames: string[] } {
   if (skills.length === 0) return { score: 0, matchedNames: [] };
   const jdLower = jdText.toLowerCase();
   const matchedNames: string[] = [];
   for (const skill of skills) {
-    if (jdLower.includes(skill.toLowerCase())) matchedNames.push(skill);
+    if (jdLower.includes(skill.name.toLowerCase())) matchedNames.push(skill.name);
   }
   return { score: Math.round((matchedNames.length / skills.length) * 100), matchedNames };
 }
