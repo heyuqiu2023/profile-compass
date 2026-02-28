@@ -18,19 +18,15 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const validateAcUkEmail = (value: string) => {
+  const validateEmail = (value: string) => {
     if (!value) {
       setEmailError("");
       return false;
     }
     const trimmed = value.trim().toLowerCase();
-    if (!trimmed.endsWith(".ac.uk")) {
-      setEmailError("Please use a university email ending in .ac.uk");
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.ac\.uk$/i;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmed)) {
-      setEmailError("Please enter a valid .ac.uk email address");
+      setEmailError("Please enter a valid email address");
       return false;
     }
     setEmailError("");
@@ -42,7 +38,7 @@ const Auth = () => {
     const trimmedEmail = email.trim().toLowerCase();
 
     if (isSignUp) {
-      if (!validateAcUkEmail(trimmedEmail)) return;
+      if (!validateEmail(trimmedEmail)) return;
       if (password.length < 6) {
         toast({ title: "Password too short", description: "Password must be at least 6 characters.", variant: "destructive" });
         return;
@@ -115,7 +111,7 @@ const Auth = () => {
             {isSignUp ? "Create your account" : "Welcome back"}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            {isSignUp ? "Use your university .ac.uk email to get started" : "Sign in to your Lumora account"}
+            {isSignUp ? "Enter your email to get started" : "Sign in to your Lumora account"}
           </p>
         </div>
 
@@ -129,11 +125,11 @@ const Auth = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder={isSignUp ? "you@university.ac.uk" : "you@email.com"}
+                  placeholder="you@email.com"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    if (isSignUp) validateAcUkEmail(e.target.value);
+                    if (isSignUp) validateEmail(e.target.value);
                   }}
                   className="pl-10"
                   required
