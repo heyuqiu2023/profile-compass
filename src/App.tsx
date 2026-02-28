@@ -12,6 +12,7 @@ import PublicProfile from "./pages/PublicProfile";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import AIAssistant from "./pages/AIAssistant";
+import CVBuilder from "./pages/CVBuilder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,7 +32,7 @@ const App = () => (
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<ProfileEditor />} />
-            <Route path="cv" element={<div className="p-8 text-muted-foreground">CV Builder coming soon…</div>} />
+            <Route path="cv" element={<CVBuilder />} />
             <Route path="website" element={<div className="p-8 text-muted-foreground">Website preview coming soon…</div>} />
             <Route path="badges" element={<div className="p-8 text-muted-foreground">Badge Wall coming soon…</div>} />
             <Route path="assistant" element={<AIAssistant />} />
