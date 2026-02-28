@@ -54,6 +54,7 @@ const demoData: OnboardingData = {
     { id: "2", title: "Dean's List 2025", issuer: "UCL", dateReceived: "2025-06", category: "Award", icon: "🎓" },
     { id: "3", title: "AWS Cloud Practitioner", issuer: "Amazon Web Services", dateReceived: "2024-11", category: "Certification", icon: "💻" },
   ],
+  theme: "navy",
 };
 
 interface ProfileContextType {
