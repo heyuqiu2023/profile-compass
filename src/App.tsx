@@ -11,6 +11,7 @@ import ProfileEditor from "./pages/ProfileEditor";
 import PublicProfile from "./pages/PublicProfile";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import AIAssistant from "./pages/AIAssistant";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,7 @@ const App = () => (
             <Route path="cv" element={<div className="p-8 text-muted-foreground">CV Builder coming soon…</div>} />
             <Route path="website" element={<div className="p-8 text-muted-foreground">Website preview coming soon…</div>} />
             <Route path="badges" element={<div className="p-8 text-muted-foreground">Badge Wall coming soon…</div>} />
-            <Route path="assistant" element={<div className="p-8 text-muted-foreground">AI Assistant coming soon…</div>} />
+            <Route path="assistant" element={<AIAssistant />} />
             <Route path="settings" element={<div className="p-8 text-muted-foreground">Settings coming soon…</div>} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
