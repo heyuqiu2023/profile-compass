@@ -1,9 +1,9 @@
 import { forwardRef } from "react";
 import { OnboardingData } from "@/types/onboarding";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Linkedin, Github, Globe, Mail } from "lucide-react";
+import { MapPin, Linkedin, Github } from "lucide-react";
 
 export type CVPurpose = "job" | "university" | "social";
+export type CVTemplate = "modern" | "classic" | "minimal";
 
 export interface CVVisibility {
   education: boolean;
@@ -18,6 +18,7 @@ interface CVPreviewProps {
   data: OnboardingData;
   purpose: CVPurpose;
   visibility: CVVisibility;
+  template: CVTemplate;
 }
 
 const sectionOrder: Record<CVPurpose, string[]> = {
@@ -26,8 +27,86 @@ const sectionOrder: Record<CVPurpose, string[]> = {
   social: ["interests", "skills", "experience", "education", "badges"],
 };
 
+/* ---------- template-specific style tokens ---------- */
+
+const templateStyles: Record<CVTemplate, {
+  fontFamily: string;
+  heading: string;
+  headingBorder: string;
+  nameSize: string;
+  nameColor: string;
+  metaColor: string;
+  bodyColor: string;
+  subColor: string;
+  skillBg: string;
+  skillText: string;
+  interestBg: string;
+  interestText: string;
+  accentColor: string;
+  headerBg: string;
+  headerPadding: string;
+  sectionGap: string;
+}> = {
+  modern: {
+    fontFamily: "'Inter', system-ui, sans-serif",
+    heading: "text-[11px] font-bold uppercase tracking-wider",
+    headingBorder: "border-b pb-1 mb-2",
+    nameSize: "text-[18px]",
+    nameColor: "text-[hsl(213,52%,24%)]",
+    metaColor: "text-[hsl(0,0%,40%)]",
+    bodyColor: "text-[hsl(0,0%,10%)]",
+    subColor: "text-[hsl(0,0%,30%)]",
+    skillBg: "bg-[hsl(213,52%,24%,0.08)]",
+    skillText: "text-[hsl(213,52%,24%)]",
+    interestBg: "bg-[hsl(40,20%,95%)]",
+    interestText: "text-[hsl(0,0%,30%)]",
+    accentColor: "hsl(213,52%,24%)",
+    headerBg: "",
+    headerPadding: "",
+    sectionGap: "mb-4",
+  },
+  classic: {
+    fontFamily: "'Georgia', 'Times New Roman', serif",
+    heading: "text-[12px] font-bold uppercase tracking-[0.15em]",
+    headingBorder: "border-b-2 border-[hsl(0,0%,20%)] pb-1 mb-2",
+    nameSize: "text-[22px]",
+    nameColor: "text-[hsl(0,0%,10%)]",
+    metaColor: "text-[hsl(0,0%,45%)]",
+    bodyColor: "text-[hsl(0,0%,10%)]",
+    subColor: "text-[hsl(0,0%,35%)]",
+    skillBg: "bg-[hsl(0,0%,93%)]",
+    skillText: "text-[hsl(0,0%,20%)]",
+    interestBg: "bg-[hsl(0,0%,93%)]",
+    interestText: "text-[hsl(0,0%,35%)]",
+    accentColor: "hsl(0,0%,20%)",
+    headerBg: "",
+    headerPadding: "",
+    sectionGap: "mb-5",
+  },
+  minimal: {
+    fontFamily: "'Helvetica Neue', 'Arial', sans-serif",
+    heading: "text-[10px] font-semibold uppercase tracking-[0.2em]",
+    headingBorder: "border-b border-[hsl(0,0%,85%)] pb-1 mb-2",
+    nameSize: "text-[16px]",
+    nameColor: "text-[hsl(0,0%,15%)]",
+    metaColor: "text-[hsl(0,0%,50%)]",
+    bodyColor: "text-[hsl(0,0%,15%)]",
+    subColor: "text-[hsl(0,0%,40%)]",
+    skillBg: "bg-transparent border border-[hsl(0,0%,80%)]",
+    skillText: "text-[hsl(0,0%,30%)]",
+    interestBg: "bg-transparent border border-[hsl(0,0%,80%)]",
+    interestText: "text-[hsl(0,0%,40%)]",
+    accentColor: "hsl(0,0%,30%)",
+    headerBg: "",
+    headerPadding: "",
+    sectionGap: "mb-3",
+  },
+};
+
 const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
-  ({ data, purpose, visibility }, ref) => {
+  ({ data, purpose, visibility, template }, ref) => {
+    const t = templateStyles[template];
+
     const visibleExperiences = data.experiences.filter((e) =>
       visibility.experienceIds.includes(e.id)
     );
@@ -39,15 +118,17 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
       return `${months[parseInt(m) - 1]} ${y}`;
     };
 
+    const headingStyle = `${t.heading} ${t.headingBorder}`;
+
     const sections: Record<string, JSX.Element | null> = {
       education: visibility.education ? (
-        <div key="education" className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-[hsl(213,52%,24%)] border-b border-[hsl(213,52%,24%)/0.2] pb-1 mb-2">
+        <div key="education" className={t.sectionGap}>
+          <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
             Education
           </h2>
           <div>
-            <p className="text-[10px] font-semibold text-[hsl(0,0%,10%)]">{data.university}</p>
-            <p className="text-[9px] text-[hsl(0,0%,40%)]">
+            <p className={`text-[10px] font-semibold ${t.bodyColor}`}>{data.university}</p>
+            <p className={`text-[9px] ${t.metaColor}`}>
               {data.course}{data.yearOfStudy ? ` · ${data.yearOfStudy}` : ""}
               {data.expectedGraduation ? ` · Expected ${data.expectedGraduation}` : ""}
             </p>
@@ -56,22 +137,24 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
       ) : null,
 
       experience: visibility.experience && visibleExperiences.length > 0 ? (
-        <div key="experience" className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-[hsl(213,52%,24%)] border-b border-[hsl(213,52%,24%)/0.2] pb-1 mb-2">
+        <div key="experience" className={t.sectionGap}>
+          <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
             Experience
           </h2>
           <div className="space-y-2.5">
             {visibleExperiences.map((exp) => (
               <div key={exp.id}>
                 <div className="flex justify-between items-baseline">
-                  <p className="text-[10px] font-semibold text-[hsl(0,0%,10%)]">{exp.title}</p>
-                  <p className="text-[8px] text-[hsl(0,0%,40%)] shrink-0 ml-2">
+                  <p className={`text-[10px] font-semibold ${t.bodyColor}`}>{exp.title}</p>
+                  <p className={`text-[8px] ${t.metaColor} shrink-0 ml-2`}>
                     {formatDate(exp.startDate)} – {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
                   </p>
                 </div>
-                <p className="text-[9px] text-[hsl(213,52%,24%)] font-medium">{exp.organisation} · {exp.type}</p>
+                <p className="text-[9px] font-medium" style={{ color: t.accentColor }}>
+                  {exp.organisation} · {exp.type}
+                </p>
                 {exp.description && (
-                  <p className="text-[8.5px] text-[hsl(0,0%,30%)] mt-0.5 leading-[1.4]">{exp.description}</p>
+                  <p className={`text-[8.5px] ${t.subColor} mt-0.5 leading-[1.4]`}>{exp.description}</p>
                 )}
               </div>
             ))}
@@ -80,16 +163,13 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
       ) : null,
 
       skills: visibility.skills && data.skills.length > 0 ? (
-        <div key="skills" className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-[hsl(213,52%,24%)] border-b border-[hsl(213,52%,24%)/0.2] pb-1 mb-2">
+        <div key="skills" className={t.sectionGap}>
+          <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
             Skills
           </h2>
           <div className="flex flex-wrap gap-1">
             {data.skills.map((skill) => (
-              <span
-                key={skill}
-                className="text-[8px] px-1.5 py-0.5 rounded-sm bg-[hsl(213,52%,24%)/0.08] text-[hsl(213,52%,24%)] font-medium"
-              >
+              <span key={skill} className={`text-[8px] px-1.5 py-0.5 rounded-sm font-medium ${t.skillBg} ${t.skillText}`}>
                 {skill}
               </span>
             ))}
@@ -98,16 +178,13 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
       ) : null,
 
       interests: visibility.interests && data.interests.length > 0 ? (
-        <div key="interests" className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-[hsl(213,52%,24%)] border-b border-[hsl(213,52%,24%)/0.2] pb-1 mb-2">
+        <div key="interests" className={t.sectionGap}>
+          <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
             Interests
           </h2>
           <div className="flex flex-wrap gap-1">
             {data.interests.map((interest) => (
-              <span
-                key={interest}
-                className="text-[8px] px-1.5 py-0.5 rounded-sm bg-[hsl(40,20%,95%)] text-[hsl(0,0%,30%)] font-medium"
-              >
+              <span key={interest} className={`text-[8px] px-1.5 py-0.5 rounded-sm font-medium ${t.interestBg} ${t.interestText}`}>
                 {interest}
               </span>
             ))}
@@ -116,16 +193,16 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
       ) : null,
 
       badges: visibility.badges && data.badges.length > 0 ? (
-        <div key="badges" className="mb-4">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-[hsl(213,52%,24%)] border-b border-[hsl(213,52%,24%)/0.2] pb-1 mb-2">
+        <div key="badges" className={t.sectionGap}>
+          <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
             Certifications & Awards
           </h2>
           <div className="space-y-1">
             {data.badges.map((badge) => (
               <div key={badge.id} className="flex items-center gap-1.5">
                 <span className="text-[10px]">{badge.icon}</span>
-                <span className="text-[9px] font-medium text-[hsl(0,0%,10%)]">{badge.title}</span>
-                <span className="text-[8px] text-[hsl(0,0%,40%)]">— {badge.issuer}</span>
+                <span className={`text-[9px] font-medium ${t.bodyColor}`}>{badge.title}</span>
+                <span className={`text-[8px] ${t.metaColor}`}>— {badge.issuer}</span>
               </div>
             ))}
           </div>
@@ -140,18 +217,18 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
     return (
       <div
         ref={ref}
-        className="bg-white text-[hsl(0,0%,10%)] w-[595px] min-h-[842px] p-10 font-sans"
-        style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
+        className="bg-white w-[595px] min-h-[842px] p-10"
+        style={{ fontFamily: t.fontFamily, color: "hsl(0,0%,10%)" }}
       >
         {/* Header */}
-        <div className="mb-5">
-          <h1 className="text-[18px] font-bold text-[hsl(213,52%,24%)] leading-tight">
+        <div className={`mb-5 ${t.headerPadding}`} style={{ background: t.headerBg || undefined }}>
+          <h1 className={`${t.nameSize} font-bold leading-tight ${t.nameColor}`}>
             {data.firstName} {data.lastName}
           </h1>
           {data.headline && (
-            <p className="text-[10px] text-[hsl(0,0%,40%)] mt-0.5">{data.headline}</p>
+            <p className={`text-[10px] ${t.metaColor} mt-0.5`}>{data.headline}</p>
           )}
-          <div className="flex flex-wrap items-center gap-3 mt-2 text-[8px] text-[hsl(0,0%,40%)]">
+          <div className={`flex flex-wrap items-center gap-3 mt-2 text-[8px] ${t.metaColor}`}>
             {data.location && (
               <span className="flex items-center gap-0.5">
                 <MapPin className="w-2.5 h-2.5" /> {data.location}
@@ -172,7 +249,7 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
 
         {/* Bio */}
         {data.bio && (
-          <p className="text-[9px] text-[hsl(0,0%,30%)] leading-[1.5] mb-4">{data.bio}</p>
+          <p className={`text-[9px] ${t.subColor} leading-[1.5] mb-4`}>{data.bio}</p>
         )}
 
         {/* Sections */}
