@@ -285,7 +285,7 @@ const AIAssistant = () => {
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
               <Sparkles className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-1">Layer AI Assistant</h2>
+            <h2 className="text-xl font-bold text-foreground mb-1">Lumora AI Assistant</h2>
             <p className="text-muted-foreground text-sm max-w-md mb-8">
               I can help you build a standout CV, write website copy, and enhance your
               profile descriptions. Try a quick action below or ask me anything.

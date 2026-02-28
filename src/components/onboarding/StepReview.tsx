@@ -38,7 +38,7 @@ const StepReview = ({ data, onEdit }: Props) => {
     <div className="space-y-6 animate-fade-in-up">
       <div>
         <h2 className="text-2xl font-bold text-foreground">Review your profile</h2>
-        <p className="text-muted-foreground mt-1">Check everything looks good before creating your Layer.</p>
+        <p className="text-muted-foreground mt-1">Check everything looks good before creating your Lumora.</p>
       </div>
 
       {/* Basics */}
