@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are Layer AI, a friendly and expert career assistant for university students. You help students build compelling CVs, personal websites, and profile descriptions.
+const SYSTEM_PROMPT = `You are Lumora AI, a friendly and expert career assistant for university students. You help students build compelling CVs, personal websites, and profile descriptions.
 
 Your capabilities:
 1. **CV Suggestions**: Suggest improvements to experience descriptions, recommend structure, highlight achievements with metrics, and write professional bullet points.

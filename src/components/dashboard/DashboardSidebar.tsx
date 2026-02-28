@@ -37,7 +37,7 @@ export function DashboardSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>
             {!collapsed && (
-              <span className="text-lg font-bold tracking-tight text-foreground">Layer</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">Lumora</span>
             )}
           </SidebarGroupLabel>
           <SidebarGroupContent>

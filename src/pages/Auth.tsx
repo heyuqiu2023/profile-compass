@@ -115,7 +115,7 @@ const Auth = () => {
             {isSignUp ? "Create your account" : "Welcome back"}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            {isSignUp ? "Use your university .ac.uk email to get started" : "Sign in to your Layer account"}
+            {isSignUp ? "Use your university .ac.uk email to get started" : "Sign in to your Lumora account"}
           </p>
         </div>
 
@@ -235,7 +235,7 @@ const Auth = () => {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          Built with <span className="font-semibold text-foreground">Layer</span>
+          Built with <span className="font-semibold text-foreground">Lumora</span>
         </p>
       </motion.div>
     </div>

@@ -221,7 +221,7 @@ const PublicProfile = () => {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container text-center">
-          <p className="text-sm text-muted-foreground">Built with <a href="/" className="font-semibold text-foreground hover:text-primary transition-colors">Layer</a></p>
+          <p className="text-sm text-muted-foreground">Built with <a href="/" className="font-semibold text-foreground hover:text-primary transition-colors">Lumora</a></p>
         </div>
       </footer>
     </div>

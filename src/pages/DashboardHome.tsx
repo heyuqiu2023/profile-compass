@@ -8,7 +8,7 @@ const DashboardHome = () => {
     <div className="container max-w-5xl py-8 px-4 md:px-8 space-y-8 animate-fade-in-up">
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Welcome back. Your Layer is live.
+          Welcome back. Your Lumora is live.
         </h1>
         <p className="text-muted-foreground mt-1">
           Manage your profile, build CVs, and share your portfolio.

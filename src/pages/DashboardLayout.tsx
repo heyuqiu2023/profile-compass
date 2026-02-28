@@ -16,7 +16,7 @@ const DashboardLayout = () => {
           <div className="flex-1 flex flex-col min-w-0">
             <header className="h-14 flex items-center border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40 px-4">
               <SidebarTrigger className="hidden md:flex" />
-              <span className="md:hidden text-lg font-bold tracking-tight text-foreground">Layer</span>
+              <span className="md:hidden text-lg font-bold tracking-tight text-foreground">Lumora</span>
             </header>
 
             <main className="flex-1 pb-16 md:pb-0">

@@ -70,7 +70,7 @@ const Onboarding = () => {
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container flex items-center justify-between h-16">
-          <span className="text-xl font-bold tracking-tight text-foreground">Layer</span>
+          <span className="text-xl font-bold tracking-tight text-foreground">Lumora</span>
           <span className="text-sm text-muted-foreground">
             Step {step + 1} of {STEP_LABELS.length}
           </span>
@@ -127,7 +127,7 @@ const Onboarding = () => {
               </Button>
             ) : (
               <Button onClick={handleCreate} className="gap-2">
-                Create My Layer 🚀
+                Create My Lumora 🚀
               </Button>
             )}
           </div>

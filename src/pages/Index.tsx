@@ -33,7 +33,7 @@ const Index = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container flex items-center justify-between h-16">
           <span className="text-xl font-bold tracking-tight text-foreground">
-            Layer
+            Lumora
           </span>
           <Link to="/auth">
             <Button variant="ghost" size="sm">
@@ -99,7 +99,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>Built at Hackathon · Layer © 2026</p>
+          <p>Built at Hackathon · Lumora © 2026</p>
         </div>
       </footer>
     </div>
