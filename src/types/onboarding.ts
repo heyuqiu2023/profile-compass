@@ -29,6 +29,9 @@ export interface OnboardingData {
   // Step 5: Badges
   badges: BadgeEntry[];
 
+  // Activities
+  activities: ActivityEntry[];
+
   // Theme
   theme: ThemeId;
 
@@ -56,6 +59,36 @@ export interface BadgeEntry {
   icon: string;
 }
 
+export interface ActivityEntry {
+  id: string;
+  title: string;
+  type: string;
+  activityDate: string;
+  note: string;
+}
+
+export const ACTIVITY_TYPES = [
+  "Event",
+  "Workshop",
+  "Conference",
+  "Hackathon",
+  "Seminar",
+  "Social",
+  "Sports",
+  "Other",
+];
+
+export const ACTIVITY_TYPE_COLORS: Record<string, string> = {
+  Event: "bg-blue-100 text-blue-800",
+  Workshop: "bg-purple-100 text-purple-800",
+  Conference: "bg-teal-100 text-teal-800",
+  Hackathon: "bg-orange-100 text-orange-800",
+  Seminar: "bg-gray-100 text-gray-700",
+  Social: "bg-pink-100 text-pink-800",
+  Sports: "bg-green-100 text-green-800",
+  Other: "bg-gray-100 text-gray-700",
+};
+
 export const defaultOnboardingData: OnboardingData = {
   firstName: "",
   lastName: "",
@@ -75,6 +108,7 @@ export const defaultOnboardingData: OnboardingData = {
   skills: [],
   interests: [],
   badges: [],
+  activities: [],
   theme: "navy",
   openTo: "",
 };

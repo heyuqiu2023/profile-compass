@@ -54,6 +54,11 @@ const demoData: OnboardingData = {
     { id: "2", title: "Dean's List 2025", issuer: "UCL", dateReceived: "2025-06", category: "Award", icon: "🎓" },
     { id: "3", title: "AWS Cloud Practitioner", issuer: "Amazon Web Services", dateReceived: "2024-11", category: "Certification", icon: "💻" },
   ],
+  activities: [
+    { id: "1", title: "Attended UCL AI Summit 2025", type: "Conference", activityDate: "2025-03", note: "Met 3 potential co-founders" },
+    { id: "2", title: "Volunteered at Freshers' Fair", type: "Event", activityDate: "2024-09", note: "Helped run the Tech Society stall" },
+    { id: "3", title: "Bloomberg Tech Workshop", type: "Workshop", activityDate: "2024-11", note: "" },
+  ],
   theme: "navy",
   openTo: "Product internships for Summer 2026, coffee chats about fintech",
 };
