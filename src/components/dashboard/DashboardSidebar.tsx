@@ -1,4 +1,4 @@
-import { User, FileText, Globe, Award, Bot, Settings, LogOut } from "lucide-react";
+import { User, FileText, Globe, Award, Settings, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -19,7 +19,6 @@ const navItems = [
   { title: "CV Builder", url: "/dashboard/cv", icon: FileText },
   { title: "My Website", url: "/dashboard/website", icon: Globe },
   { title: "Badge Wall", url: "/dashboard/badges", icon: Award },
-  { title: "AI Assistant", url: "/dashboard/assistant", icon: Bot },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 

@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardBottomNav } from "@/components/dashboard/DashboardBottomNav";
+import { FloatingAIPanel } from "@/components/dashboard/FloatingAIPanel";
 import { ProfileProvider } from "@/contexts/ProfileContext";
 
 const DashboardLayout = () => {
@@ -25,6 +26,7 @@ const DashboardLayout = () => {
           </div>
 
           <DashboardBottomNav />
+          <FloatingAIPanel />
         </div>
       </SidebarProvider>
     </ProfileProvider>

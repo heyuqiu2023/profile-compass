@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Globe, Award, Bot, Plus, ExternalLink, Copy } from "lucide-react";
+import { FileText, Globe, Award, Plus, ExternalLink, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProfile } from "@/contexts/ProfileContext";
 import ProfileCompletenessRing from "@/components/dashboard/ProfileCompletenessRing";
@@ -82,26 +82,6 @@ const DashboardHome = () => {
             <Link to="/dashboard/badges">
               <Button size="sm" variant="outline" className="gap-1.5">
                 <ExternalLink className="w-3.5 h-3.5" /> View
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        {/* AI Assistant */}
-        <Card className="border border-border hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-start gap-3 pb-2">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Bot className="w-5 h-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-base">AI Assistant</CardTitle>
-              <p className="text-sm text-muted-foreground">Get help improving your profile</p>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Link to="/dashboard/assistant">
-              <Button size="sm" className="gap-1.5">
-                <Bot className="w-3.5 h-3.5" /> Open Assistant
               </Button>
             </Link>
           </CardContent>
