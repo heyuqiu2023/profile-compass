@@ -68,6 +68,36 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_cvs: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          purpose: string
+          template: string
+          user_id: string
+          visibility: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          purpose: string
+          template?: string
+          user_id: string
+          visibility?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          purpose?: string
+          template?: string
+          user_id?: string
+          visibility?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

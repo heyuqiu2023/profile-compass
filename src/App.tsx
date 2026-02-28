@@ -13,6 +13,8 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import AIAssistant from "./pages/AIAssistant";
 import CVBuilder from "./pages/CVBuilder";
+import BadgeWall from "./pages/BadgeWall";
+import WebsitePreview from "./pages/WebsitePreview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,12 +31,13 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/demo" element={<PublicProfile />} />
+          <Route path="/u/:username" element={<PublicProfile />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<ProfileEditor />} />
             <Route path="cv" element={<CVBuilder />} />
-            <Route path="website" element={<div className="p-8 text-muted-foreground">Website preview coming soon…</div>} />
-            <Route path="badges" element={<div className="p-8 text-muted-foreground">Badge Wall coming soon…</div>} />
+            <Route path="website" element={<WebsitePreview />} />
+            <Route path="badges" element={<BadgeWall />} />
             <Route path="assistant" element={<AIAssistant />} />
             <Route path="settings" element={<div className="p-8 text-muted-foreground">Settings coming soon…</div>} />
           </Route>
