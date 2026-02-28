@@ -1,3 +1,5 @@
+import { ThemeId } from "@/lib/themes";
+
 export interface OnboardingData {
   // Step 1: Basics
   firstName: string;
@@ -26,6 +28,9 @@ export interface OnboardingData {
 
   // Step 5: Badges
   badges: BadgeEntry[];
+
+  // Theme
+  theme: ThemeId;
 }
 
 export interface Experience {
@@ -67,6 +72,7 @@ export const defaultOnboardingData: OnboardingData = {
   skills: [],
   interests: [],
   badges: [],
+  theme: "navy",
 };
 
 export const EXPERIENCE_TYPES = [

@@ -5,16 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp } from "lucide-react";
+import { THEMES, ThemeId, ThemeColors } from "@/lib/themes";
 
 // Demo data — will be replaced with DB fetch later
-const demoProfiles: Record<string, {
-  profile: typeof demoProfile;
-  experiences: typeof demoExperiences;
-  badges: typeof demoBadges;
-  skills: string[];
-  interests: string[];
-} | undefined> = {};
-
 const demoProfile = {
   firstName: "Alex",
   lastName: "Chen",
@@ -28,6 +21,7 @@ const demoProfile = {
   linkedinUrl: "https://linkedin.com/in/alexchen",
   githubUrl: "https://github.com/alexchen",
   websiteUrl: "https://alexchen.dev",
+  theme: "navy" as ThemeId,
 };
 
 const demoExperiences = [
@@ -48,19 +42,15 @@ const demoBadges = [
 const demoSkills = ["Python", "React", "TypeScript", "Figma", "SQL", "TensorFlow", "Docker", "Node.js"];
 const demoInterests = ["Fintech", "UI Design", "Sustainability", "Machine Learning", "Open Source"];
 
-// Register demo user
-demoProfiles["demotozero"] = { profile: demoProfile, experiences: demoExperiences, badges: demoBadges, skills: demoSkills, interests: demoInterests };
+const demoProfiles: Record<string, {
+  profile: typeof demoProfile;
+  experiences: typeof demoExperiences;
+  badges: typeof demoBadges;
+  skills: string[];
+  interests: string[];
+} | undefined> = {};
 
-const TYPE_COLORS: Record<string, string> = {
-  Internship: "bg-blue-100 text-blue-800 border-blue-200",
-  "Part-time Job": "bg-green-100 text-green-800 border-green-200",
-  Volunteering: "bg-purple-100 text-purple-800 border-purple-200",
-  "Society Role": "bg-amber-100 text-amber-800 border-amber-200",
-  Project: "bg-cyan-100 text-cyan-800 border-cyan-200",
-  Competition: "bg-rose-100 text-rose-800 border-rose-200",
-  Research: "bg-indigo-100 text-indigo-800 border-indigo-200",
-  Other: "bg-gray-100 text-gray-800 border-gray-200",
-};
+demoProfiles["demotozero"] = { profile: demoProfile, experiences: demoExperiences, badges: demoBadges, skills: demoSkills, interests: demoInterests };
 
 const formatDate = (d: string) => {
   if (!d) return "Present";
@@ -75,27 +65,42 @@ const FadeInSection = ({ children, delay = 0, className = "" }: { children: Reac
   </motion.div>
 );
 
-const ExperienceCard = ({ exp, index }: { exp: typeof demoExperiences[0]; index: number }) => {
+const ExperienceCard = ({ exp, index, colors }: { exp: typeof demoExperiences[0]; index: number; colors: ThemeColors }) => {
   const [expanded, setExpanded] = useState(false);
   return (
     <FadeInSection delay={index * 0.08}>
       <div className="flex gap-4 pb-8 group">
         <div className="relative flex-shrink-0 flex flex-col items-center">
-          <div className={`w-3 h-3 rounded-full border-2 mt-1.5 z-10 transition-colors ${exp.isCurrent ? "border-primary bg-primary" : "border-muted-foreground/40 bg-background group-hover:border-primary"}`} />
-          <div className="w-px flex-1 bg-border" />
+          <div
+            className="w-3 h-3 rounded-full border-2 mt-1.5 z-10 transition-colors"
+            style={{
+              borderColor: exp.isCurrent ? colors.accent : colors.muted + "66",
+              backgroundColor: exp.isCurrent ? colors.accent : colors.bg,
+            }}
+          />
+          <div className="w-px flex-1" style={{ backgroundColor: colors.isDark ? colors.secondary + "30" : "#e5e7eb" }} />
         </div>
         <div className="flex-1 cursor-pointer" onClick={() => setExpanded(!expanded)}>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium border ${TYPE_COLORS[exp.type] || TYPE_COLORS.Other}`}>{exp.type}</span>
-            {exp.isCurrent && <span className="text-xs text-primary font-medium">Current</span>}
+            <span
+              className="text-xs px-2.5 py-0.5 rounded-full font-medium border"
+              style={{
+                backgroundColor: colors.accent + "15",
+                color: colors.accent,
+                borderColor: colors.accent + "30",
+              }}
+            >
+              {exp.type}
+            </span>
+            {exp.isCurrent && <span className="text-xs font-medium" style={{ color: colors.accent }}> Current</span>}
           </div>
-          <h3 className="font-semibold text-foreground mt-1">{exp.title}</h3>
-          <p className="text-sm text-muted-foreground">{exp.organisation}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(exp.startDate)} — {exp.isCurrent ? "Present" : formatDate(exp.endDate)}</p>
+          <h3 className="font-semibold mt-1" style={{ color: colors.text }}>{exp.title}</h3>
+          <p className="text-sm" style={{ color: colors.muted }}>{exp.organisation}</p>
+          <p className="text-xs mt-0.5" style={{ color: colors.muted }}>{formatDate(exp.startDate)} — {exp.isCurrent ? "Present" : formatDate(exp.endDate)}</p>
           <motion.div initial={false} animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }} transition={{ duration: 0.3, ease: "easeInOut" }} className="overflow-hidden">
-            <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{exp.description}</p>
+            <p className="text-sm mt-3 leading-relaxed" style={{ color: colors.muted }}>{exp.description}</p>
           </motion.div>
-          <button className="text-xs text-primary/70 hover:text-primary mt-2 flex items-center gap-1 transition-colors">
+          <button className="text-xs mt-2 flex items-center gap-1 transition-colors" style={{ color: colors.accent + "b0" }}>
             {expanded ? <><ChevronUp className="w-3 h-3" /> Less</> : <><ChevronDown className="w-3 h-3" /> More</>}
           </button>
         </div>
@@ -121,29 +126,59 @@ const PublicProfile = () => {
   }
 
   const { profile, experiences, badges, skills, interests } = profileData;
+  const themeId = (profile.theme || "navy") as ThemeId;
+  const theme = THEMES[themeId] || THEMES.navy;
+  const c = theme.colors;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: c.bg }}>
       {/* Hero */}
       <section className="pt-16 pb-12 md:pt-24 md:pb-16">
         <div className="container max-w-3xl px-6">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="flex flex-col items-center text-center">
-            <Avatar className="w-28 h-28 md:w-36 md:h-36 border-4 border-border shadow-lg">
+            <Avatar className="w-28 h-28 md:w-36 md:h-36 border-4 shadow-lg" style={{ borderColor: c.accent }}>
               <AvatarImage src={profile.profilePhotoPreview} />
-              <AvatarFallback className="bg-primary text-primary-foreground text-4xl md:text-5xl font-bold">{profile.firstName[0]}</AvatarFallback>
+              <AvatarFallback className="text-4xl md:text-5xl font-bold text-white" style={{ backgroundColor: c.accent }}>{profile.firstName[0]}</AvatarFallback>
             </Avatar>
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground mt-6">{profile.firstName} {profile.lastName}</h1>
-              <p className="text-lg text-muted-foreground mt-1">{profile.headline}</p>
-              <div className="flex items-center justify-center gap-4 mt-3 text-sm text-muted-foreground">
+              <h1 className="text-3xl md:text-4xl font-bold mt-6" style={{ color: c.text }}>{profile.firstName} {profile.lastName}</h1>
+              <p className="text-lg mt-1" style={{ color: c.muted }}>{profile.headline}</p>
+              <div className="flex items-center justify-center gap-4 mt-3 text-sm" style={{ color: c.muted }}>
                 <span className="flex items-center gap-1"><GraduationCap className="w-4 h-4" /> {profile.university}</span>
                 <span className="flex items-center gap-1"><MapPin className="w-4 h-4" /> {profile.location}</span>
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }} className="flex items-center gap-3 mt-5">
-              {profile.linkedinUrl && <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"><Linkedin className="w-4 h-4" /></a>}
-              {profile.githubUrl && <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"><Github className="w-4 h-4" /></a>}
-              {profile.websiteUrl && <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors"><Globe className="w-4 h-4" /></a>}
+              {profile.linkedinUrl && (
+                <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border flex items-center justify-center transition-colors"
+                  style={{ borderColor: c.isDark ? c.secondary + "40" : "#e5e7eb", color: c.muted }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = c.accent; e.currentTarget.style.borderColor = c.accent; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = c.muted; e.currentTarget.style.borderColor = c.isDark ? c.secondary + "40" : "#e5e7eb"; }}
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
+              {profile.githubUrl && (
+                <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border flex items-center justify-center transition-colors"
+                  style={{ borderColor: c.isDark ? c.secondary + "40" : "#e5e7eb", color: c.muted }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = c.accent; e.currentTarget.style.borderColor = c.accent; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = c.muted; e.currentTarget.style.borderColor = c.isDark ? c.secondary + "40" : "#e5e7eb"; }}
+                >
+                  <Github className="w-4 h-4" />
+                </a>
+              )}
+              {profile.websiteUrl && (
+                <a href={profile.websiteUrl} target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border flex items-center justify-center transition-colors"
+                  style={{ borderColor: c.isDark ? c.secondary + "40" : "#e5e7eb", color: c.muted }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = c.accent; e.currentTarget.style.borderColor = c.accent; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = c.muted; e.currentTarget.style.borderColor = c.isDark ? c.secondary + "40" : "#e5e7eb"; }}
+                >
+                  <Globe className="w-4 h-4" />
+                </a>
+              )}
             </motion.div>
           </motion.div>
         </div>
@@ -153,8 +188,8 @@ const PublicProfile = () => {
       <section className="pb-12 md:pb-16">
         <div className="container max-w-3xl px-6">
           <FadeInSection>
-            <h2 className="text-xl font-bold text-foreground mb-3">About</h2>
-            <p className="text-muted-foreground leading-relaxed">{profile.bio}</p>
+            <h2 className="text-xl font-bold mb-3" style={{ color: c.text }}>About</h2>
+            <p className="leading-relaxed" style={{ color: c.muted }}>{profile.bio}</p>
           </FadeInSection>
         </div>
       </section>
@@ -162,25 +197,30 @@ const PublicProfile = () => {
       {/* Experience */}
       <section className="pb-12 md:pb-16">
         <div className="container max-w-3xl px-6">
-          <FadeInSection><h2 className="text-xl font-bold text-foreground mb-6">Experience</h2></FadeInSection>
-          <div className="ml-1">{experiences.map((exp, i) => <ExperienceCard key={exp.id} exp={exp} index={i} />)}</div>
+          <FadeInSection><h2 className="text-xl font-bold mb-6" style={{ color: c.text }}>Experience</h2></FadeInSection>
+          <div className="ml-1">{experiences.map((exp, i) => <ExperienceCard key={exp.id} exp={exp} index={i} colors={c} />)}</div>
         </div>
       </section>
 
       {/* Achievements */}
       <section className="pb-12 md:pb-16">
         <div className="container max-w-3xl px-6">
-          <FadeInSection><h2 className="text-xl font-bold text-foreground mb-6">Achievements</h2></FadeInSection>
+          <FadeInSection><h2 className="text-xl font-bold mb-6" style={{ color: c.text }}>Achievements</h2></FadeInSection>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {badges.map((badge, i) => (
               <FadeInSection key={badge.id} delay={i * 0.06}>
                 <motion.div whileHover={{ scale: 1.04 }} transition={{ type: "spring", stiffness: 300 }}>
-                  <Card className="border border-border h-full">
+                  <Card className="h-full" style={{ backgroundColor: c.isDark ? c.secondary + "10" : undefined, borderColor: c.isDark ? c.secondary + "30" : c.accent + "20" }}>
                     <CardContent className="pt-5 pb-4 text-center">
                       <span className="text-3xl">{badge.icon}</span>
-                      <h4 className="font-semibold text-foreground text-sm mt-2 leading-tight">{badge.title}</h4>
-                      <p className="text-xs text-muted-foreground mt-1">{badge.issuer}</p>
-                      <Badge variant="outline" className="text-[10px] mt-2">{badge.category}</Badge>
+                      <h4 className="font-semibold text-sm mt-2 leading-tight" style={{ color: c.text }}>{badge.title}</h4>
+                      <p className="text-xs mt-1" style={{ color: c.muted }}>{badge.issuer}</p>
+                      <span
+                        className="inline-block text-[10px] mt-2 px-2 py-0.5 rounded-full border font-medium"
+                        style={{ borderColor: c.accent + "40", color: c.accent }}
+                      >
+                        {badge.category}
+                      </span>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -194,10 +234,20 @@ const PublicProfile = () => {
       <section className="pb-12 md:pb-16">
         <div className="container max-w-3xl px-6">
           <FadeInSection>
-            <h2 className="text-xl font-bold text-foreground mb-4">Skills</h2>
+            <h2 className="text-xl font-bold mb-4" style={{ color: c.text }}>Skills</h2>
             <div className="flex flex-wrap gap-2">
               {skills.map((skill, i) => (
-                <motion.span key={skill} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.04, duration: 0.3 }} className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">{skill}</motion.span>
+                <motion.span
+                  key={skill}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.04, duration: 0.3 }}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium"
+                  style={{ backgroundColor: c.accent + "18", color: c.accent }}
+                >
+                  {skill}
+                </motion.span>
               ))}
             </div>
           </FadeInSection>
@@ -208,10 +258,23 @@ const PublicProfile = () => {
       <section className="pb-16 md:pb-20">
         <div className="container max-w-3xl px-6">
           <FadeInSection>
-            <h2 className="text-xl font-bold text-foreground mb-4">Interests</h2>
+            <h2 className="text-xl font-bold mb-4" style={{ color: c.text }}>Interests</h2>
             <div className="flex flex-wrap gap-2">
               {interests.map((interest, i) => (
-                <motion.span key={interest} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.04, duration: 0.3 }} className="px-3 py-1.5 rounded-full border border-border text-muted-foreground text-sm font-medium hover:border-primary/50 hover:text-foreground transition-colors">{interest}</motion.span>
+                <motion.span
+                  key={interest}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.04, duration: 0.3 }}
+                  className="px-3 py-1.5 rounded-full border text-sm font-medium transition-colors"
+                  style={{
+                    borderColor: c.isDark ? c.secondary + "40" : c.secondary,
+                    color: c.muted,
+                  }}
+                >
+                  {interest}
+                </motion.span>
               ))}
             </div>
           </FadeInSection>
@@ -219,9 +282,14 @@ const PublicProfile = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8">
+      <footer className="py-8" style={{ borderTop: `1px solid ${c.isDark ? c.secondary + "20" : "#e5e7eb"}` }}>
         <div className="container text-center">
-          <p className="text-sm text-muted-foreground">Built with <a href="/" className="font-semibold text-foreground hover:text-primary transition-colors">Lumora</a></p>
+          <p className="text-sm" style={{ color: c.muted }}>
+            Built with <a href="/" className="font-semibold transition-colors" style={{ color: c.text }}
+              onMouseEnter={(e) => e.currentTarget.style.color = c.accent}
+              onMouseLeave={(e) => e.currentTarget.style.color = c.text}
+            >Lumora</a>
+          </p>
         </div>
       </footer>
     </div>
