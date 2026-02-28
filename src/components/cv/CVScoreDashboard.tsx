@@ -196,9 +196,10 @@ const MetricCard = ({
 interface CVScoreDashboardProps {
   data: OnboardingData;
   jobDescription: string;
+  purpose?: "job" | "university" | "social";
 }
 
-const CVScoreDashboard = ({ data, jobDescription }: CVScoreDashboardProps) => {
+const CVScoreDashboard = ({ data, jobDescription, purpose = "job" }: CVScoreDashboardProps) => {
   const result = useMemo(
     () => computeCVScore(data, jobDescription),
     [data, jobDescription]
@@ -243,7 +244,7 @@ const CVScoreDashboard = ({ data, jobDescription }: CVScoreDashboardProps) => {
           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#eab308" }} />
           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#22c55e" }} />
           <span className="ml-3 text-[10px] font-medium" style={{ color: "hsl(0,0%,50%)" }}>
-            CV Score — {result.jobTitle}
+            {purpose === "university" ? "Programme Score" : purpose === "social" ? "Context Score" : "CV Score"} — {result.jobTitle}
           </span>
         </div>
 
