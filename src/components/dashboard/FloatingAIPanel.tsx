@@ -39,9 +39,9 @@ const profileActions = [
 ];
 
 async function streamChat({
-  messages, action, profileData, onDelta, onDone, onError,
+  messages, action, profileData, mode, onDelta, onDone, onError,
 }: {
-  messages: Msg[]; action?: string; profileData?: any;
+  messages: Msg[]; action?: string; profileData?: any; mode?: string;
   onDelta: (text: string) => void; onDone: () => void; onError: (err: string) => void;
 }) {
   const resp = await fetch(CHAT_URL, {
@@ -50,7 +50,7 @@ async function streamChat({
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages, action, profileData }),
+    body: JSON.stringify({ messages, action, profileData, mode }),
   });
   if (!resp.ok) { const d = await resp.json().catch(() => ({})); onError(d.error || `Error ${resp.status}`); return; }
   if (!resp.body) { onError("No response body"); return; }
@@ -135,8 +135,9 @@ export function FloatingAIPanel() {
         return [...prev, { role: "assistant", content: assistantSoFar }];
       });
     };
+    const mode = context === "cv" ? "cv" : "profile";
     await streamChat({
-      messages: action ? [] : newMessages, action, profileData: profileSummary,
+      messages: action ? [] : newMessages, action, profileData: profileSummary, mode,
       onDelta: upsertAssistant,
       onDone: () => setIsLoading(false),
       onError: (err) => { toast.error(err); setIsLoading(false); },

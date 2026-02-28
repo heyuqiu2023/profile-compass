@@ -6,23 +6,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are Lumora AI, a friendly and expert career assistant for university students. You help students build compelling CVs, personal websites, and profile descriptions.
+const PROFILE_SYSTEM_PROMPT = `You are Lumora AI, a profile writing assistant for university students. When a student describes an experience in rough or informal language, rewrite it as a polished, professional profile entry. Keep it concise — 2-3 sentences max. Do not exaggerate or invent details the student did not mention. If the input is too vague, ask one clarifying question. Format your suggested entry clearly with the title in bold. You can also help improve bios, suggest headlines, recommend skills based on experiences, and write website copy. Always be helpful and concise.`;
 
-Your capabilities:
-1. **CV Suggestions**: Suggest improvements to experience descriptions, recommend structure, highlight achievements with metrics, and write professional bullet points.
-2. **Website Copy**: Write engaging bio text, headlines, and about sections for personal portfolio websites.
-3. **Experience Enhancement**: Take basic experience descriptions and make them more compelling with action verbs, quantified impact, and clear outcomes.
-4. **Skills & Interests**: Suggest relevant skills and interests based on the student's background.
-5. **General Career Advice**: Help with positioning, personal branding, and making the most of university experiences.
-
-Guidelines:
-- Keep responses concise and actionable
-- Use bullet points for CV suggestions
-- When enhancing descriptions, provide the improved version directly
-- Be encouraging but honest
-- Focus on the UK university context
-- Use markdown formatting for clear structure
-- When the user shares their profile data, reference it specifically in your suggestions`;
+const CV_SYSTEM_PROMPT_TEMPLATE = `You are Lumora AI, a CV writing assistant for university students. The user's CV purpose is: {purpose}. Help rewrite experience descriptions to match this purpose. For job applications: use action verbs, quantify impact, keep to 2-3 bullet points. For university applications: emphasise learning, research methodology, intellectual contribution. For social/networking: keep it brief and conversational. Always show a Before and After comparison. Explain briefly why you made the changes. You can also suggest CV structure, recommend which experiences to include, and advise on section ordering.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -30,36 +16,47 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, action, profileData } = await req.json();
+    const { messages, action, profileData, mode, purpose } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Build context-aware messages
-    const systemMessages: any[] = [
-      { role: "system", content: SYSTEM_PROMPT },
-    ];
-
-    // If profile data is provided, add it as context
-    if (profileData) {
-      systemMessages.push({
-        role: "system",
-        content: `Here is the student's current profile data:\n\`\`\`json\n${JSON.stringify(profileData, null, 2)}\n\`\`\`\nUse this data to provide personalised suggestions.`,
-      });
+    // Select system prompt based on mode
+    let systemPrompt: string;
+    if (mode === "cv") {
+      systemPrompt = CV_SYSTEM_PROMPT_TEMPLATE.replace("{purpose}", purpose || "job");
+    } else {
+      systemPrompt = PROFILE_SYSTEM_PROMPT;
     }
+
+    // Append profile data as context
+    if (profileData) {
+      systemPrompt += `\n\nHere is the student's current profile data:\n\`\`\`json\n${JSON.stringify(profileData, null, 2)}\n\`\`\`\nUse this data to provide personalised suggestions.`;
+    }
+
+    const systemMessages: any[] = [
+      { role: "system", content: systemPrompt },
+    ];
 
     // Handle quick actions with pre-built prompts
     let userMessages = messages || [];
     if (action && !messages?.length) {
+      const bio = profileData?.bio || "(no bio set)";
+      const expList = (profileData?.experiences || [])
+        .map((e: any) => `- **${e.title}** at ${e.organisation}: ${e.description || "(no description)"}`)
+        .join("\n");
+
       const actionPrompts: Record<string, string> = {
-        "improve-bio": "Review my bio and suggest 2-3 improved versions that are more compelling and professional. Keep them concise (under 300 characters).",
-        "enhance-experiences": "Review each of my experiences and rewrite the descriptions with stronger action verbs, quantified impact, and clearer outcomes. Format as bullet points.",
-        "suggest-skills": "Based on my experiences and background, suggest 5-10 additional relevant skills I should add to my profile.",
-        "cv-structure": "Suggest the best CV structure and section ordering for my profile. Include tips on what to emphasise and what to add.",
-        "website-copy": "Write compelling website copy for my personal portfolio, including a hero headline, about section, and a brief tagline.",
-        "headline-ideas": "Generate 5 alternative headlines for my profile that are catchy, professional, and highlight my strengths.",
+        "improve-bio": `Here is my current bio: "${bio}". Please rewrite it to be more compelling and professional.`,
+        "enhance-experiences": `Here are my experiences. Please suggest improvements for each description:\n${expList}`,
+        "cv-structure": "Based on my profile, what's the best CV structure for a job application in tech?",
+        "website-copy": "Write a compelling About section for my personal portfolio website based on my profile.",
+        "headline-ideas": "Suggest 3 professional headlines for my profile based on my background.",
+        "suggest-skills": "Based on my experiences, what skills should I add to my profile that I might be missing?",
+        "cv-tailor": "Based on my profile, how should I tailor my CV for a tech role? Which experiences should I highlight?",
+        "cv-improve": `Here are my experience descriptions. Rewrite each as strong CV bullet points:\n${expList}`,
       };
       userMessages = [{ role: "user", content: actionPrompts[action] || action }];
     }
