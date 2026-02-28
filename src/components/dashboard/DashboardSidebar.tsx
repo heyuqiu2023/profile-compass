@@ -1,5 +1,6 @@
 import { User, FileText, Globe, Award, Settings, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import LumoraLogo from "@/components/LumoraLogo";
 import { useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -36,7 +37,7 @@ export function DashboardSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>
             {!collapsed && (
-              <span className="text-lg font-bold tracking-tight text-foreground">Lumora</span>
+              <LumoraLogo height={22} />
             )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
