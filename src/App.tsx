@@ -16,6 +16,7 @@ import CVBuilder from "./pages/CVBuilder";
 import BadgeWall from "./pages/BadgeWall";
 import WebsitePreview from "./pages/WebsitePreview";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -27,12 +28,15 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/demo" element={<PublicProfile />} />
           <Route path="/u/:username" element={<PublicProfile />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route
+            path="/dashboard"
+            element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}
+          >
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<ProfileEditor />} />
             <Route path="cv" element={<CVBuilder />} />

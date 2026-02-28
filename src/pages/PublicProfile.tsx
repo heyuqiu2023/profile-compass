@@ -99,7 +99,7 @@ const formatDate = (d: string) => {
 };
 
 const FadeInSection = ({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) => (
-  <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.5, delay, ease: "easeOut" }} className={className}>
+  <motion.div initial={{ opacity: 1, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0 }} transition={{ duration: 0.5, delay, ease: "easeOut" }} className={className}>
     {children}
   </motion.div>
 );
@@ -375,7 +375,7 @@ const PublicProfile = () => {
               {skills.map((skill, i) => {
                 const level = PROFICIENCY_LEVELS.find((l) => l.value === skill.proficiency) ?? PROFICIENCY_LEVELS[1];
                 return (
-                  <motion.div key={skill.id} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.04, duration: 0.3 }}
+                  <motion.div key={skill.id} initial={{ opacity: 1, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0 }} transition={{ delay: i * 0.04, duration: 0.3 }}
                     className="p-3 rounded-lg border"
                     style={{ backgroundColor: c.isDark ? c.secondary + "10" : c.accent + "06", borderColor: c.isDark ? c.secondary + "25" : c.accent + "15" }}>
                     <p className="font-semibold text-sm" style={{ color: c.text }}>{skill.name}</p>
@@ -402,7 +402,7 @@ const PublicProfile = () => {
                 {languages.map((lang, i) => {
                   const level = LANGUAGE_PROFICIENCY_LEVELS.find((l) => l.value === lang.proficiency) ?? LANGUAGE_PROFICIENCY_LEVELS[3];
                   return (
-                    <motion.div key={lang.id} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.06, duration: 0.3 }}
+                    <motion.div key={lang.id} initial={{ opacity: 1, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0 }} transition={{ delay: i * 0.06, duration: 0.3 }}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg border"
                       style={{ backgroundColor: c.isDark ? c.secondary + "10" : c.accent + "06", borderColor: c.isDark ? c.secondary + "25" : c.accent + "15" }}>
                       <div>
@@ -462,7 +462,7 @@ const PublicProfile = () => {
             <h2 className="text-xl font-bold mb-4" style={{ color: c.text }}>Interests</h2>
             <div className="flex flex-wrap gap-2">
               {interests.map((interest, i) => (
-                <motion.span key={interest} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.04, duration: 0.3 }}
+                <motion.span key={interest} initial={{ opacity: 1, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0 }} transition={{ delay: i * 0.04, duration: 0.3 }}
                   className="px-3 py-1.5 rounded-full border text-sm font-medium transition-colors"
                   style={{ borderColor: c.isDark ? c.secondary + "40" : c.secondary, color: c.muted }}>
                   {interest}

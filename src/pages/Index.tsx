@@ -46,7 +46,7 @@ const ScoreMockup = () => {
     >
       {/* Glow effect */}
       <div className="absolute -inset-4 bg-gradient-to-br from-[hsl(213,52%,24%,0.15)] to-[hsl(213,52%,44%,0.08)] rounded-3xl blur-2xl" />
-      
+
       <div className="relative bg-white rounded-2xl shadow-2xl border border-[hsl(220,13%,91%)] overflow-hidden">
         {/* Toolbar */}
         <div className="flex items-center gap-1.5 px-4 py-3 bg-[hsl(220,13%,97%)] border-b border-[hsl(220,13%,91%)]">
@@ -263,9 +263,9 @@ const Index = () => {
       <section className="py-20 md:py-28">
         <div className="container max-w-5xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0 }}
             transition={{ duration: 0.5 }}
             className="text-center mb-12"
           >
@@ -277,9 +277,9 @@ const Index = () => {
             {features.map((feature, i) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 1, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, amount: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.4 }}
               >
                 <Card className="border border-border bg-card hover:shadow-lg hover:border-primary/20 transition-all duration-300 h-full">
@@ -312,9 +312,9 @@ const Index = () => {
             ].map((stat) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 1, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={{ once: true, amount: 0 }}
                 transition={{ duration: 0.4 }}
               >
                 <p className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</p>
@@ -329,9 +329,9 @@ const Index = () => {
       <section className="py-20 md:py-28">
         <div className="container max-w-2xl text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 1, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0 }}
             transition={{ duration: 0.5 }}
           >
             <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />

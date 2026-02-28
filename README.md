@@ -1,73 +1,71 @@
-# Welcome to your Lovable project
+# Profile Compass
 
-## Project info
+A career profile builder for university students. Users sign up, complete an onboarding wizard, build a rich profile (skills, experiences, badges), generate a CV, and get a shareable public profile page — all powered by an AI assistant for career guidance.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Tech Stack
 
-## How can I edit this code?
+- **Frontend**: React 18 + TypeScript, Vite, Tailwind CSS, shadcn/ui
+- **Backend**: Supabase (PostgreSQL, Auth, Edge Functions)
+- **Key Libraries**: React Router v6, TanStack Query, Recharts, Framer Motion, jsPDF
 
-There are several ways of editing your application.
+## Pages
 
-**Use Lovable**
+| Route | Description |
+|---|---|
+| `/` | Landing page |
+| `/auth` | Login / Sign-up |
+| `/onboarding` | Step-by-step profile setup for new users |
+| `/u/:username` | Public shareable profile page |
+| `/dashboard` | Authenticated user dashboard |
+| `/dashboard/profile` | Full profile editor |
+| `/dashboard/cv` | CV builder with quality scoring |
+| `/dashboard/website` | Personal website preview |
+| `/dashboard/badges` | Achievement badge collection |
+| `/dashboard/assistant` | AI career guidance chat |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Project Structure
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+src/
+├── pages/          # Top-level page components
+├── components/
+│   ├── ui/         # shadcn/ui primitives
+│   ├── dashboard/  # Sidebar, bottom nav, AI panel
+│   ├── onboarding/ # Multi-step onboarding wizard steps
+│   └── cv/         # CV preview and score dashboard
+├── contexts/       # React context providers (auth, etc.)
+├── hooks/          # Custom React hooks
+├── integrations/   # Supabase client & auto-generated types
+└── lib/            # Utility helpers
 
-**Use your preferred IDE**
+supabase/
+├── migrations/     # Database schema migrations
+└── functions/
+    ├── ai-assistant/             # AI chat edge function
+    └── extract-profile-updates/  # Parses AI responses into profile updates
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Getting Started
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Set up environment variables
+# Create a .env file with your Supabase URL and anon key:
+# VITE_SUPABASE_URL=your_supabase_url
+# VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 3. Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Available Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+| Command | Description |
+|---|---|
+| `npm run dev` | Start local dev server |
+| `npm run build` | Build for production |
+| `npm run test` | Run tests (Vitest) |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview production build locally |
