@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import CVPreview, { CVPurpose, CVTemplate, CVVisibility } from "@/components/cv/CVPreview";
-import { Briefcase, GraduationCap, Users, ArrowLeft, ArrowRight, Download, Loader2, Palette, FileText, Minus } from "lucide-react";
+import { Briefcase, GraduationCap, Users, ArrowLeft, ArrowRight, Download, Loader2, Palette, FileText, Minus, Save } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { supabase } from "@/integrations/supabase/client";
 
 const purposes: { id: CVPurpose; label: string; desc: string; icon: React.ReactNode }[] = [
   { id: "job", label: "Job Application", desc: "Emphasises work experience, skills and measurable results.", icon: <Briefcase className="w-6 h-6" /> },
@@ -42,6 +45,9 @@ const CVBuilder = () => {
   const [template, setTemplate] = useState<CVTemplate>("modern");
   const [visibility, setVisibility] = useState<CVVisibility | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saveName, setSaveName] = useState("");
+  const [saving, setSaving] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
   const selectPurpose = (p: CVPurpose) => {
@@ -81,6 +87,30 @@ const CVBuilder = () => {
       setExporting(false);
     }
   }, [data.firstName, data.lastName]);
+
+  const saveCV = async () => {
+    if (!saveName.trim() || !purpose || !visibility) return;
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { toast.error("Please sign in to save CVs"); setSaving(false); return; }
+      const { error } = await supabase.from("saved_cvs").insert({
+        user_id: user.id,
+        name: saveName.trim(),
+        purpose,
+        template,
+        visibility: visibility as any,
+      });
+      if (error) throw error;
+      toast.success("CV saved!");
+      setSaveOpen(false);
+      setSaveName("");
+    } catch {
+      toast.error("Failed to save CV");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="container max-w-5xl py-8 animate-fade-in-up">
@@ -239,14 +269,35 @@ const CVBuilder = () => {
             <Button variant="outline" onClick={() => setStep(2)}>
               <ArrowLeft className="mr-1 w-4 h-4" /> Back
             </Button>
-            <Button onClick={exportPDF} disabled={exporting}>
-              {exporting ? (
-                <><Loader2 className="mr-1 w-4 h-4 animate-spin" /> Generating…</>
-              ) : (
-                <><Download className="mr-1 w-4 h-4" /> Download PDF</>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setSaveOpen(true)}>
+                <Save className="mr-1 w-4 h-4" /> Save CV
+              </Button>
+              <Button onClick={exportPDF} disabled={exporting}>
+                {exporting ? (
+                  <><Loader2 className="mr-1 w-4 h-4 animate-spin" /> Generating…</>
+                ) : (
+                  <><Download className="mr-1 w-4 h-4" /> Download PDF</>
+                )}
+              </Button>
+            </div>
           </div>
+
+          {/* Save CV Dialog */}
+          <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Save CV Configuration</DialogTitle></DialogHeader>
+              <div className="py-2">
+                <Input placeholder="e.g. Google Summer Internship CV" value={saveName} onChange={(e) => setSaveName(e.target.value)} />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                <Button onClick={saveCV} disabled={saving || !saveName.trim()}>
+                  {saving ? <><Loader2 className="mr-1 w-4 h-4 animate-spin" /> Saving…</> : "Save"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </div>
