@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import CVPreview, { CVPurpose, CVTemplate, CVVisibility } from "@/components/cv/CVPreview";
+import CVScoreDashboard, { computeCVScore } from "@/components/cv/CVScoreDashboard";
 import { Briefcase, GraduationCap, Users, ArrowLeft, ArrowRight, Download, Loader2, Palette, FileText, Minus, Save } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -40,11 +41,10 @@ const defaultVisibility = (purpose: CVPurpose, experienceIds: string[]): CVVisib
   }
 };
 
-/* ---------- JD matching helpers ---------- */
+/* ---------- JD keyword helpers for experience relevance ---------- */
 
 function extractJDKeywords(jdText: string): string[] {
   const lower = jdText.toLowerCase();
-  // Split into words, filter short/common words
   const words = lower.match(/[a-z0-9#+.]+/g) || [];
   const stopWords = new Set([
     "the", "and", "or", "is", "are", "was", "were", "be", "been", "being",
@@ -56,43 +56,15 @@ function extractJDKeywords(jdText: string): string[] {
     "more", "most", "all", "any", "each", "every", "both", "such", "own",
     "up", "out", "new", "well", "way", "use", "one", "two", "who", "how",
     "what", "when", "where", "which", "while", "after", "before",
+    "work", "team", "role", "working", "looking", "join", "ability",
   ]);
   return [...new Set(words.filter((w) => w.length >= 2 && !stopWords.has(w)))];
-}
-
-function matchSkills(
-  skills: string[],
-  jdText: string
-): { matched: Set<string>; matchedNames: string[]; total: number; score: number } {
-  if (!jdText.trim()) return { matched: new Set<string>(), matchedNames: [], total: 0, score: 0 };
-
-  const jdLower = jdText.toLowerCase();
-  const jdKeywords = extractJDKeywords(jdText);
-
-  const matchedNames: string[] = [];
-  const matched = new Set<string>();
-
-  for (const skill of skills) {
-    const skillLower = skill.toLowerCase();
-    if (jdLower.includes(skillLower)) {
-      matched.add(skillLower);
-      matchedNames.push(skill);
-    }
-  }
-
-  const total = jdKeywords.length;
-  const score = total > 0 ? Math.min(100, Math.round((matched.size / Math.max(total * 0.1, 1)) * 100)) : 0;
-  // More intuitive: ratio of matched skills to total user skills that appear
-  const intuitiveScore = skills.length > 0 ? Math.round((matched.size / skills.length) * 100) : 0;
-
-  return { matched, matchedNames, total, score: intuitiveScore };
 }
 
 function experienceMatchesJD(description: string, jdText: string): boolean {
   if (!description || !jdText.trim()) return false;
   const jdKeywords = extractJDKeywords(jdText);
   const descLower = description.toLowerCase();
-  // Check if at least 3 JD keywords appear in the description
   let hits = 0;
   for (const kw of jdKeywords) {
     if (descLower.includes(kw)) hits++;
@@ -100,41 +72,6 @@ function experienceMatchesJD(description: string, jdText: string): boolean {
   }
   return false;
 }
-
-/* ---------- Circular Score Component ---------- */
-
-const MatchScoreCircle = ({ score }: { score: number }) => {
-  const radius = 38;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  const color =
-    score >= 60
-      ? "hsl(213, 52%, 24%)"   // navy
-      : score >= 40
-      ? "hsl(36, 40%, 60%)"    // warm sand
-      : "hsl(0, 60%, 65%)";    // light red
-
-  return (
-    <div className="relative w-24 h-24">
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={radius} fill="none" stroke="hsl(0,0%,90%)" strokeWidth="6" />
-        <circle
-          cx="50" cy="50" r={radius} fill="none"
-          stroke={color} strokeWidth="6"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-500"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-lg font-bold text-foreground">{score}%</span>
-        <span className="text-[9px] text-muted-foreground">match</span>
-      </div>
-    </div>
-  );
-};
 
 const CVBuilder = () => {
   const { data } = useProfile();
@@ -168,15 +105,14 @@ const CVBuilder = () => {
     });
   };
 
-  // JD matching
-  const jdMatch = useMemo(() => {
-    if (purpose !== "job" || !jobDescription.trim()) {
-      return { matched: new Set<string>(), matchedNames: [], total: 0, score: 0 };
-    }
-    return matchSkills(data.skills, jobDescription);
-  }, [data.skills, jobDescription, purpose]);
+  // Matched skills for CV preview highlighting
+  const matchedSkillsSet = useMemo(() => {
+    if (purpose !== "job" || !jobDescription.trim()) return undefined;
+    const result = computeCVScore(data, jobDescription);
+    return new Set(result.matchedSkillNames.map((s) => s.toLowerCase()));
+  }, [data, jobDescription, purpose]);
 
-  const matchedSkillsSet = jdMatch.matched;
+  const showScore = purpose === "job" && jobDescription.trim().length > 0;
 
   const exportPDF = useCallback(async () => {
     if (!previewRef.current) return;
@@ -256,7 +192,7 @@ const CVBuilder = () => {
             ))}
           </div>
 
-          {/* Job Description field — only for job purpose */}
+          {/* Job Description field */}
           {purpose === "job" && (
             <div className="space-y-2">
               <Label htmlFor="jd-input" className="text-sm font-medium text-foreground">
@@ -311,31 +247,9 @@ const CVBuilder = () => {
           <div className="grid lg:grid-cols-[1fr_320px] gap-6">
             {/* Preview column */}
             <div className="space-y-4">
-              {/* CV Match Score */}
-              {purpose === "job" && jobDescription.trim() && (
-                <Card className="border border-border">
-                  <CardContent className="p-5 flex items-center gap-5">
-                    <MatchScoreCircle score={jdMatch.score} />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground text-sm mb-1">CV Match</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {jdMatch.matchedNames.length} of {data.skills.length} skills matched
-                      </p>
-                      {jdMatch.matchedNames.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {jdMatch.matchedNames.map((s) => (
-                            <span
-                              key={s}
-                              className="text-[10px] px-1.5 py-0.5 rounded-sm font-medium bg-[hsl(213,52%,24%)] text-white"
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* CV Score Dashboard */}
+              {showScore && (
+                <CVScoreDashboard data={data} jobDescription={jobDescription} />
               )}
 
               {/* Preview */}
@@ -347,7 +261,7 @@ const CVBuilder = () => {
                     purpose={purpose}
                     visibility={visibility}
                     template={template}
-                    matchedSkills={purpose === "job" && jobDescription.trim() ? matchedSkillsSet : undefined}
+                    matchedSkills={matchedSkillsSet}
                   />
                 </div>
               </div>
@@ -376,7 +290,7 @@ const CVBuilder = () => {
                   </div>
                 </div>
 
-                {/* JD textarea on step 2 as well for job purpose */}
+                {/* JD textarea on step 2 */}
                 {purpose === "job" && (
                   <div className="space-y-2">
                     <Label htmlFor="jd-input-2" className="text-xs font-medium text-foreground">
@@ -415,7 +329,8 @@ const CVBuilder = () => {
                             <span className="text-xs text-muted-foreground">({exp.organisation})</span>
                             {isRelevant && (
                               <span
-                                className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ backgroundColor: "#22c55e" }}
                                 title="Relevant to job description"
                               />
                             )}
@@ -448,28 +363,9 @@ const CVBuilder = () => {
             <p className="text-muted-foreground text-sm mt-1">Review the final preview and download as PDF.</p>
           </div>
 
-          {/* Match score on export step too */}
-          {purpose === "job" && jobDescription.trim() && (
-            <Card className="border border-border">
-              <CardContent className="p-5 flex items-center gap-5">
-                <MatchScoreCircle score={jdMatch.score} />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-foreground text-sm mb-1">CV Match</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {jdMatch.matchedNames.length} of {data.skills.length} skills matched
-                  </p>
-                  {jdMatch.matchedNames.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {jdMatch.matchedNames.map((s) => (
-                        <span key={s} className="text-[10px] px-1.5 py-0.5 rounded-sm font-medium bg-[hsl(213,52%,24%)] text-white">
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+          {/* CV Score Dashboard on export step */}
+          {showScore && (
+            <CVScoreDashboard data={data} jobDescription={jobDescription} />
           )}
 
           <div className="overflow-auto rounded-lg border bg-muted/30 p-4 flex justify-center">
@@ -480,7 +376,7 @@ const CVBuilder = () => {
                 purpose={purpose}
                 visibility={visibility}
                 template={template}
-                matchedSkills={purpose === "job" && jobDescription.trim() ? matchedSkillsSet : undefined}
+                matchedSkills={matchedSkillsSet}
               />
             </div>
           </div>
