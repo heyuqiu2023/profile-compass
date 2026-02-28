@@ -31,6 +31,9 @@ export interface OnboardingData {
 
   // Theme
   theme: ThemeId;
+
+  // Open To
+  openTo: string;
 }
 
 export interface Experience {
@@ -73,6 +76,7 @@ export const defaultOnboardingData: OnboardingData = {
   interests: [],
   badges: [],
   theme: "navy",
+  openTo: "",
 };
 
 export const EXPERIENCE_TYPES = [

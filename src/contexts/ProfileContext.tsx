@@ -55,6 +55,7 @@ const demoData: OnboardingData = {
     { id: "3", title: "AWS Cloud Practitioner", issuer: "Amazon Web Services", dateReceived: "2024-11", category: "Certification", icon: "💻" },
   ],
   theme: "navy",
+  openTo: "Product internships for Summer 2026, coffee chats about fintech",
 };
 
 interface ProfileContextType {
