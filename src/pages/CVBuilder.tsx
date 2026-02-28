@@ -5,31 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import CVPreview, { CVPurpose, CVVisibility } from "@/components/cv/CVPreview";
-import { Briefcase, GraduationCap, Users, ArrowLeft, ArrowRight, Download, Loader2, FileText } from "lucide-react";
+import CVPreview, { CVPurpose, CVTemplate, CVVisibility } from "@/components/cv/CVPreview";
+import { Briefcase, GraduationCap, Users, ArrowLeft, ArrowRight, Download, Loader2, Palette, FileText, Minus } from "lucide-react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 const purposes: { id: CVPurpose; label: string; desc: string; icon: React.ReactNode }[] = [
-  {
-    id: "job",
-    label: "Job Application",
-    desc: "Emphasises work experience, skills and measurable results.",
-    icon: <Briefcase className="w-6 h-6" />,
-  },
-  {
-    id: "university",
-    label: "University Application",
-    desc: "Highlights academics, research and project work.",
-    icon: <GraduationCap className="w-6 h-6" />,
-  },
-  {
-    id: "social",
-    label: "Social / Networking",
-    desc: "Lighter format — interests and personality first.",
-    icon: <Users className="w-6 h-6" />,
-  },
+  { id: "job", label: "Job Application", desc: "Emphasises work experience, skills and measurable results.", icon: <Briefcase className="w-6 h-6" /> },
+  { id: "university", label: "University Application", desc: "Highlights academics, research and project work.", icon: <GraduationCap className="w-6 h-6" /> },
+  { id: "social", label: "Social / Networking", desc: "Lighter format — interests and personality first.", icon: <Users className="w-6 h-6" /> },
+];
+
+const templates: { id: CVTemplate; label: string; desc: string; icon: React.ReactNode }[] = [
+  { id: "modern", label: "Modern", desc: "Clean navy accents, Inter font, contemporary feel.", icon: <Palette className="w-5 h-5" /> },
+  { id: "classic", label: "Classic", desc: "Serif typography, bold dividers, traditional layout.", icon: <FileText className="w-5 h-5" /> },
+  { id: "minimal", label: "Minimal", desc: "Helvetica, subtle borders, maximum whitespace.", icon: <Minus className="w-5 h-5" /> },
 ];
 
 const defaultVisibility = (purpose: CVPurpose, experienceIds: string[]): CVVisibility => {
@@ -48,6 +39,7 @@ const CVBuilder = () => {
   const { data } = useProfile();
   const [step, setStep] = useState(1);
   const [purpose, setPurpose] = useState<CVPurpose | null>(null);
+  const [template, setTemplate] = useState<CVTemplate>("modern");
   const [visibility, setVisibility] = useState<CVVisibility | null>(null);
   const [exporting, setExporting] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -75,11 +67,7 @@ const CVBuilder = () => {
     if (!previewRef.current) return;
     setExporting(true);
     try {
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
+      const canvas = await html2canvas(previewRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pdfW = pdf.internal.pageSize.getWidth();
@@ -117,11 +105,7 @@ const CVBuilder = () => {
             {purposes.map((p) => (
               <Card
                 key={p.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  purpose === p.id
-                    ? "ring-2 ring-primary shadow-md"
-                    : "hover:border-primary/40"
-                }`}
+                className={`cursor-pointer transition-all hover:shadow-md ${purpose === p.id ? "ring-2 ring-primary shadow-md" : "hover:border-primary/40"}`}
                 onClick={() => selectPurpose(p.id)}
               >
                 <CardContent className="p-5 flex flex-col items-center text-center gap-3">
@@ -132,6 +116,28 @@ const CVBuilder = () => {
               </Card>
             ))}
           </div>
+
+          {/* Template picker */}
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Choose a template</h2>
+            <p className="text-muted-foreground text-sm mb-4">Pick the visual style for your CV.</p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {templates.map((t) => (
+              <Card
+                key={t.id}
+                className={`cursor-pointer transition-all hover:shadow-md ${template === t.id ? "ring-2 ring-primary shadow-md" : "hover:border-primary/40"}`}
+                onClick={() => setTemplate(t.id)}
+              >
+                <CardContent className="p-5 flex flex-col items-center text-center gap-3">
+                  <div className="text-primary">{t.icon}</div>
+                  <h3 className="font-semibold text-foreground">{t.label}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
           <div className="flex justify-end">
             <Button disabled={!purpose} onClick={() => setStep(2)}>
               Next <ArrowRight className="ml-1 w-4 h-4" />
@@ -151,42 +157,54 @@ const CVBuilder = () => {
             {/* Preview */}
             <div className="overflow-auto rounded-lg border bg-muted/30 p-4 flex justify-center">
               <div className="origin-top" style={{ transform: "scale(0.72)", transformOrigin: "top center" }}>
-                <CVPreview ref={previewRef} data={data} purpose={purpose} visibility={visibility} />
+                <CVPreview ref={previewRef} data={data} purpose={purpose} visibility={visibility} template={template} />
               </div>
             </div>
 
             {/* Controls */}
             <Card>
               <CardContent className="p-5 space-y-5">
+                {/* Template switcher */}
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm mb-2">Template</h3>
+                  <div className="flex gap-2">
+                    {templates.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => setTemplate(t.id)}
+                        className={`flex-1 text-xs py-1.5 px-2 rounded-md border transition-all ${
+                          template === t.id
+                            ? "border-primary bg-primary/10 text-primary font-medium"
+                            : "border-border text-muted-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <h3 className="font-semibold text-foreground text-sm">Sections</h3>
                 {(["education", "experience", "skills", "interests", "badges"] as const).map((key) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm capitalize text-foreground">{key}</span>
-                    <Switch
-                      checked={visibility[key]}
-                      onCheckedChange={() => toggleSection(key)}
-                    />
+                    <Switch checked={visibility[key]} onCheckedChange={() => toggleSection(key)} />
                   </div>
                 ))}
 
                 {visibility.experience && data.experiences.length > 0 && (
-                  <>
-                    <div className="border-t pt-4">
-                      <h3 className="font-semibold text-foreground text-sm mb-3">Experience entries</h3>
-                      <div className="space-y-2">
-                        {data.experiences.map((exp) => (
-                          <label key={exp.id} className="flex items-center gap-2 cursor-pointer">
-                            <Checkbox
-                              checked={visibility.experienceIds.includes(exp.id)}
-                              onCheckedChange={() => toggleExperience(exp.id)}
-                            />
-                            <span className="text-sm text-foreground">{exp.title}</span>
-                            <span className="text-xs text-muted-foreground">({exp.organisation})</span>
-                          </label>
-                        ))}
-                      </div>
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold text-foreground text-sm mb-3">Experience entries</h3>
+                    <div className="space-y-2">
+                      {data.experiences.map((exp) => (
+                        <label key={exp.id} className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox checked={visibility.experienceIds.includes(exp.id)} onCheckedChange={() => toggleExperience(exp.id)} />
+                          <span className="text-sm text-foreground">{exp.title}</span>
+                          <span className="text-xs text-muted-foreground">({exp.organisation})</span>
+                        </label>
+                      ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -213,7 +231,7 @@ const CVBuilder = () => {
 
           <div className="overflow-auto rounded-lg border bg-muted/30 p-4 flex justify-center">
             <div className="origin-top" style={{ transform: "scale(0.72)", transformOrigin: "top center" }}>
-              <CVPreview ref={previewRef} data={data} purpose={purpose} visibility={visibility} />
+              <CVPreview ref={previewRef} data={data} purpose={purpose} visibility={visibility} template={template} />
             </div>
           </div>
 
