@@ -104,6 +104,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_featured_badges: {
+        Row: {
+          badge_id: string
+          created_at: string
+          id: string
+          position: number
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          id?: string
+          position?: number
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          id?: string
+          position?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
