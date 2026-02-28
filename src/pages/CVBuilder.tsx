@@ -264,7 +264,7 @@ const CVBuilder = () => {
             <div className="space-y-4">
               {/* CV Score Dashboard */}
               {showScore && (
-              <CVScoreDashboard data={data} jobDescription={contextDescription} />
+              <CVScoreDashboard data={data} jobDescription={contextDescription} purpose={purpose} />
               )}
 
               {/* Preview */}
@@ -380,7 +380,7 @@ const CVBuilder = () => {
 
           {/* CV Score Dashboard on export step */}
           {showScore && (
-            <CVScoreDashboard data={data} jobDescription={contextDescription} />
+            <CVScoreDashboard data={data} jobDescription={contextDescription} purpose={purpose} />
           )}
 
           <div className="overflow-auto rounded-lg border bg-muted/30 p-4 flex justify-center">
