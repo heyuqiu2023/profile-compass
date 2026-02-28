@@ -12,6 +12,11 @@ export interface OnboardingData {
   profilePhoto: File | null;
   profilePhotoPreview: string;
 
+  // Contact
+  email: string;
+  phone: string;
+  portfolioUrl: string;
+
   // Step 2: About
   bio: string;
   location: string;
@@ -22,9 +27,15 @@ export interface OnboardingData {
   // Step 3: Experiences
   experiences: Experience[];
 
+  // Education
+  education: EducationEntry[];
+
   // Step 4: Skills & Interests
   skills: Skill[];
   interests: string[];
+
+  // Languages
+  languages: LanguageEntry[];
 
   // Step 5: Badges
   badges: BadgeEntry[];
@@ -51,7 +62,39 @@ export interface Experience {
   endDate: string;
   isCurrent: boolean;
   description: string;
+  responsibilities: string;
+  achievements: string;
+  tools: string[];
 }
+
+export interface EducationEntry {
+  id: string;
+  institution: string;
+  degree: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  grade: string;
+  coursework: string;
+  thesisTitle: string;
+  description: string;
+}
+
+export interface LanguageEntry {
+  id: string;
+  language: string;
+  proficiency: LanguageProficiency;
+}
+
+export type LanguageProficiency = "Native" | "Fluent" | "Professional" | "Conversational" | "Basic";
+
+export const LANGUAGE_PROFICIENCY_LEVELS: { value: LanguageProficiency; label: string; dots: number }[] = [
+  { value: "Native", label: "Native", dots: 5 },
+  { value: "Fluent", label: "Fluent", dots: 4 },
+  { value: "Professional", label: "Professional", dots: 3 },
+  { value: "Conversational", label: "Conversational", dots: 2 },
+  { value: "Basic", label: "Basic", dots: 1 },
+];
 
 export interface BadgeEntry {
   id: string;
@@ -128,15 +171,20 @@ export const defaultOnboardingData: OnboardingData = {
   expectedGraduation: "",
   profilePhoto: null,
   profilePhotoPreview: "",
+  email: "",
+  phone: "",
+  portfolioUrl: "",
   bio: "",
   location: "",
   websiteUrl: "",
   linkedinUrl: "",
   githubUrl: "",
   experiences: [],
+  education: [],
   skills: [],
   certifications: [],
   interests: [],
+  languages: [],
   badges: [],
   activities: [],
   theme: "navy",
