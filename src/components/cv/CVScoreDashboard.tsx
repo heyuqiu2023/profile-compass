@@ -302,6 +302,36 @@ const CVScoreDashboard = ({ data, jobDescription, purpose = "job" }: CVScoreDash
               )}
             </motion.div>
           )}
+
+          {/* Improvement tips */}
+          {(() => {
+            const tips: { icon: string; text: string }[] = [];
+            if (result.experienceMatch < 50)
+              tips.push({ icon: "💼", text: "Add experiences with keywords that match this description." });
+            if (result.skillAlignment < 50)
+              tips.push({ icon: "🎯", text: "Add more relevant skills to your profile to improve alignment." });
+            if (result.educationFit < 50)
+              tips.push({ icon: "🎓", text: "Ensure your course or university details match what's mentioned." });
+            if (result.keywordCoverage < 50)
+              tips.push({ icon: "🔑", text: "Your profile is missing key terms — try updating your bio or experience descriptions." });
+            if (tips.length === 0) return null;
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.4 }}
+                className="mt-4 rounded-lg p-3 space-y-1.5"
+                style={{ backgroundColor: "hsl(45,100%,97%)", border: "1px solid hsl(45,80%,85%)" }}
+              >
+                <p className="text-[10px] font-semibold" style={{ color: "hsl(30,60%,40%)" }}>Tips to improve your score</p>
+                {tips.map((tip, i) => (
+                  <p key={i} className="text-[10px] leading-relaxed" style={{ color: "hsl(30,30%,35%)" }}>
+                    {tip.icon} {tip.text}
+                  </p>
+                ))}
+              </motion.div>
+            );
+          })()}
         </div>
       </div>
     </motion.div>
