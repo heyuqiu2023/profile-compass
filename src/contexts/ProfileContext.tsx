@@ -54,6 +54,10 @@ const demoData: OnboardingData = {
     { id: "s4", name: "Figma", proficiency: "intermediate" },
     { id: "s5", name: "SQL", proficiency: "advanced" },
   ],
+  certifications: [
+    { id: "c1", name: "AWS Cloud Practitioner", issuer: "Amazon Web Services", issueDate: "2024-11", expiryDate: "2027-11", noExpiry: false, credentialId: "AWS-CLP-2024-98765", credentialUrl: "https://aws.amazon.com/verification" },
+    { id: "c2", name: "Google Analytics Professional", issuer: "Google", issueDate: "2024-06", expiryDate: "", noExpiry: true, credentialId: "", credentialUrl: "" },
+  ],
   interests: ["Fintech", "UI Design", "Sustainability"],
   badges: [
     { id: "1", title: "Hackathon Winner", issuer: "MLH", dateReceived: "2025-01", category: "Competition", icon: "🏆" },

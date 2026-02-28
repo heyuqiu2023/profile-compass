@@ -33,11 +33,11 @@ const defaultVisibility = (purpose: CVPurpose, experienceIds: string[]): CVVisib
   const base = { experienceIds };
   switch (purpose) {
     case "job":
-      return { ...base, education: true, experience: true, skills: true, interests: false, badges: true };
+      return { ...base, education: true, experience: true, skills: true, interests: false, badges: true, certifications: true };
     case "university":
-      return { ...base, education: true, experience: true, skills: true, interests: false, badges: true };
+      return { ...base, education: true, experience: true, skills: true, interests: false, badges: true, certifications: true };
     case "social":
-      return { ...base, education: true, experience: false, skills: true, interests: true, badges: false };
+      return { ...base, education: true, experience: false, skills: true, interests: true, badges: false, certifications: false };
   }
 };
 
@@ -322,7 +322,7 @@ const CVBuilder = () => {
                 )}
 
                 <h3 className="font-semibold text-foreground text-sm">Sections</h3>
-                {(["education", "experience", "skills", "interests", "badges"] as const).map((key) => (
+                {(["education", "experience", "skills", "certifications", "interests", "badges"] as const).map((key) => (
                   <div key={key} className="flex items-center justify-between">
                     <span className="text-sm capitalize text-foreground">{key}</span>
                     <Switch checked={visibility[key]} onCheckedChange={() => toggleSection(key)} />

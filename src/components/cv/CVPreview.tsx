@@ -11,6 +11,7 @@ export interface CVVisibility {
   skills: boolean;
   interests: boolean;
   badges: boolean;
+  certifications: boolean;
   experienceIds: string[];
 }
 
@@ -23,9 +24,9 @@ interface CVPreviewProps {
 }
 
 const sectionOrder: Record<CVPurpose, string[]> = {
-  job: ["experience", "skills", "education", "badges", "interests"],
-  university: ["education", "experience", "skills", "badges", "interests"],
-  social: ["interests", "skills", "experience", "education", "badges"],
+  job: ["experience", "skills", "certifications", "education", "badges", "interests"],
+  university: ["education", "experience", "skills", "certifications", "badges", "interests"],
+  social: ["interests", "skills", "experience", "certifications", "education", "badges"],
 };
 
 /* ---------- template-specific style tokens ---------- */
@@ -207,10 +208,27 @@ const CVPreview = forwardRef<HTMLDivElement, CVPreviewProps>(
         </div>
       ) : null,
 
+      certifications: visibility.certifications && (data.certifications?.length ?? 0) > 0 ? (
+        <div key="certifications" className={t.sectionGap}>
+          <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
+            Certifications
+          </h2>
+          <div className="space-y-1">
+            {data.certifications.map((cert) => (
+              <div key={cert.id} className="flex items-baseline gap-1.5">
+                <span className={`text-[9px] font-medium ${t.bodyColor}`}>{cert.name}</span>
+                <span className={`text-[8px] ${t.metaColor}`}>— {cert.issuer}</span>
+                {cert.issueDate && <span className={`text-[7.5px] ${t.metaColor}`}>({cert.issueDate.replace("-", "/")})</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null,
+
       badges: visibility.badges && data.badges.length > 0 ? (
         <div key="badges" className={t.sectionGap}>
           <h2 className={headingStyle} style={{ color: t.accentColor, borderColor: `${t.accentColor}33` }}>
-            Certifications & Awards
+            Awards & Achievements
           </h2>
           <div className="space-y-1">
             {data.badges.map((badge) => (

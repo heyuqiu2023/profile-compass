@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
-  OnboardingData, Experience, BadgeEntry, ActivityEntry, Skill, Proficiency,
+  OnboardingData, Experience, BadgeEntry, ActivityEntry, Skill, Proficiency, CertificationEntry,
   EXPERIENCE_TYPES, BADGE_CATEGORIES, BADGE_ICONS,
   ACTIVITY_TYPES, ACTIVITY_TYPE_COLORS, YEAR_OPTIONS, PROFICIENCY_LEVELS,
 } from "@/types/onboarding";
@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { Camera, Plus, Trash2, Save, X, Pencil, Linkedin, Github, Globe, ArrowRight } from "lucide-react";
+import { Camera, Plus, Trash2, Save, X, Pencil, Linkedin, Github, Globe, ArrowRight, ExternalLink, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 // ─── Colors ───
@@ -237,6 +237,114 @@ const SkillsSection = ({ skills, onChange }: { skills: Skill[]; onChange: (s: Sk
         )}
       </CardContent>
     </Card>
+  );
+};
+
+// ─── Certification Form Dialog ───
+const CertificationFormDialog = ({ cert, open, onOpenChange, onSave }: {
+  cert: CertificationEntry | null; open: boolean; onOpenChange: (o: boolean) => void; onSave: (c: CertificationEntry) => void;
+}) => {
+  const empty: CertificationEntry = { id: crypto.randomUUID(), name: "", issuer: "", issueDate: "", expiryDate: "", noExpiry: false, credentialId: "", credentialUrl: "" };
+  const [form, setForm] = useState<CertificationEntry>(cert || empty);
+  useEffect(() => { setForm(cert || { ...empty, id: crypto.randomUUID() }); }, [cert, open]);
+  const u = (p: Partial<CertificationEntry>) => setForm((f) => ({ ...f, ...p }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader><DialogTitle>{cert ? "Edit Certification" : "Add Certification"}</DialogTitle></DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-2"><Label>Certification name</Label><Input value={form.name} onChange={(e) => u({ name: e.target.value })} placeholder="e.g. AWS Solutions Architect Associate" /></div>
+          <div className="space-y-2"><Label>Issuing organisation</Label><Input value={form.issuer} onChange={(e) => u({ issuer: e.target.value })} placeholder="e.g. Amazon Web Services" /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Issue date</Label><Input type="month" value={form.issueDate} onChange={(e) => u({ issueDate: e.target.value })} /></div>
+            <div className="space-y-2">
+              <Label>Expiry date</Label>
+              <Input type="month" value={form.expiryDate} onChange={(e) => u({ expiryDate: e.target.value })} disabled={form.noExpiry} />
+              <div className="flex items-center gap-2 mt-1"><Switch checked={form.noExpiry} onCheckedChange={(v) => u({ noExpiry: v, expiryDate: "" })} /><span className="text-xs text-muted-foreground">No expiry</span></div>
+            </div>
+          </div>
+          <div className="space-y-2"><Label>Credential ID (optional)</Label><Input value={form.credentialId} onChange={(e) => u({ credentialId: e.target.value })} placeholder="e.g. AWS-SAA-2024-12345" /></div>
+          <div className="space-y-2"><Label>Credential URL (optional)</Label><Input type="url" value={form.credentialUrl} onChange={(e) => u({ credentialUrl: e.target.value })} placeholder="https://..." /></div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <Button onClick={() => { if (!form.name.trim() || !form.issuer.trim()) { toast.error("Name and issuer are required"); return; } onSave(form); onOpenChange(false); }}>{cert ? "Update" : "Add"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// ─── Certifications Section ───
+const CertificationsSection = ({ certifications, onChange }: { certifications: CertificationEntry[]; onChange: (c: CertificationEntry[]) => void }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCert, setEditingCert] = useState<CertificationEntry | null>(null);
+
+  const saveCert = (c: CertificationEntry) => {
+    if (editingCert) {
+      onChange(certifications.map((x) => x.id === editingCert.id ? c : x));
+      toast.success("Certification updated");
+    } else {
+      onChange([c, ...certifications]);
+      toast.success("Certification added");
+    }
+    setEditingCert(null);
+  };
+
+  const deleteCert = (id: string) => { onChange(certifications.filter((c) => c.id !== id)); toast.success("Certification removed"); };
+
+  const fmtDate = (d: string) => {
+    if (!d) return "";
+    const [y, m] = d.split("-");
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return `${months[parseInt(m) - 1]} ${y}`;
+  };
+
+  return (
+    <>
+      <Card id="section-certifications">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-lg">Certifications</CardTitle>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { setEditingCert(null); setDialogOpen(true); }}>
+            <Plus className="w-3.5 h-3.5" /> Add Certification
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {certifications.length > 0 ? (
+            <div className="space-y-3">
+              {certifications.map((cert) => (
+                <div key={cert.id} className="flex items-start justify-between gap-3 p-3 rounded-lg border border-border group hover:shadow-sm transition-shadow">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <ShieldCheck className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                    <div className="min-w-0">
+                      <h4 className="font-semibold text-foreground text-sm leading-tight">{cert.name}</h4>
+                      <p className="text-sm text-muted-foreground">{cert.issuer}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Issued {fmtDate(cert.issueDate)}
+                        {cert.noExpiry ? <span className="text-muted-foreground/60 ml-1">· No expiry</span> : cert.expiryDate ? ` — Expires ${fmtDate(cert.expiryDate)}` : ""}
+                      </p>
+                      {cert.credentialUrl && (
+                        <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1">
+                          <ExternalLink className="w-3 h-3" /> Verify
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingCert(cert); setDialogOpen(true); }}><Pencil className="w-3 h-3" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteCert(cert.id)}><Trash2 className="w-3 h-3" /></Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">No certifications added yet.</p>
+          )}
+        </CardContent>
+      </Card>
+      <CertificationFormDialog cert={editingCert} open={dialogOpen} onOpenChange={setDialogOpen} onSave={saveCert} />
+    </>
   );
 };
 
@@ -482,6 +590,9 @@ const ProfileEditor = () => {
       <ActivityFormDialog activity={editingActivity} open={activityDialogOpen} onOpenChange={setActivityDialogOpen} onSave={saveActivity} />
 
       <SkillsSection skills={data.skills} onChange={(skills) => update({ skills })} />
+
+      {/* Section: Certifications */}
+      <CertificationsSection certifications={data.certifications} onChange={(certifications) => update({ certifications })} />
 
       {/* Section 6: Interests */}
       <Card id="section-interests">

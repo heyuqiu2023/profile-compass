@@ -29,6 +29,9 @@ export interface OnboardingData {
   // Step 5: Badges
   badges: BadgeEntry[];
 
+  // Certifications
+  certifications: CertificationEntry[];
+
   // Activities
   activities: ActivityEntry[];
 
@@ -57,6 +60,17 @@ export interface BadgeEntry {
   dateReceived: string;
   category: string;
   icon: string;
+}
+
+export interface CertificationEntry {
+  id: string;
+  name: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate: string;
+  noExpiry: boolean;
+  credentialId: string;
+  credentialUrl: string;
 }
 
 export interface ActivityEntry {
@@ -121,6 +135,7 @@ export const defaultOnboardingData: OnboardingData = {
   githubUrl: "",
   experiences: [],
   skills: [],
+  certifications: [],
   interests: [],
   badges: [],
   activities: [],

@@ -33,8 +33,11 @@ const ProfileCompletenessRing = ({ data }: Props) => {
     if (data.interests.length >= 1) score += 5;
     else tips.push({ text: "Add an interest", weight: 5 });
 
-    if (data.badges.length >= 1) score += 10;
-    else tips.push({ text: "Add a badge to your wall", weight: 10 });
+    if (data.badges.length >= 1) score += 5;
+    else tips.push({ text: "Add a badge to your wall", weight: 5 });
+
+    if ((data.certifications?.length ?? 0) >= 1) score += 5;
+    else tips.push({ text: "Add a certification", weight: 5 });
 
     if (data.linkedinUrl.trim()) score += 5;
     else tips.push({ text: "Add your LinkedIn URL", weight: 5 });
