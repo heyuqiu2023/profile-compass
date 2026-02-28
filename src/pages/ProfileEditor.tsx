@@ -344,6 +344,11 @@ const ProfileEditor = () => {
         <CardHeader><CardTitle className="text-lg">About</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
+            <Label>What are you open to?</Label>
+            <Input value={data.openTo} onChange={(e) => update({ openTo: e.target.value.slice(0, 120) })} maxLength={120} placeholder="e.g. Product internships for Summer 2026, coffee chats about fintech" />
+            <p className="text-xs text-muted-foreground text-right">{data.openTo.length}/120</p>
+          </div>
+          <div className="space-y-2">
             <Label>Bio</Label>
             <Textarea value={data.bio} onChange={(e) => update({ bio: e.target.value.slice(0, 300) })} rows={3} maxLength={300} />
             <p className="text-xs text-muted-foreground text-right">{data.bio.length}/300</p>

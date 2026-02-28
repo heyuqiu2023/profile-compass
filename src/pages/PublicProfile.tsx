@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp } from "lucide-react";
+import { Linkedin, Github, Globe, MapPin, GraduationCap, ChevronDown, ChevronUp, Briefcase } from "lucide-react";
 import { THEMES, ThemeId, ThemeColors } from "@/lib/themes";
 
 // Demo data — will be replaced with DB fetch later
@@ -22,6 +22,7 @@ const demoProfile = {
   githubUrl: "https://github.com/alexchen",
   websiteUrl: "https://alexchen.dev",
   theme: "navy" as ThemeId,
+  openTo: "Product internships for Summer 2026, coffee chats about fintech",
 };
 
 const demoExperiences = [
@@ -183,6 +184,26 @@ const PublicProfile = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Open To Banner */}
+      {profile.openTo && (
+        <section className="pb-8 md:pb-10">
+          <div className="container max-w-3xl px-6">
+            <FadeInSection delay={0.15}>
+              <div
+                className="flex items-center gap-3 px-5 py-3.5 rounded-xl mx-auto max-w-fit"
+                style={{
+                  backgroundColor: c.secondary + (c.isDark ? "20" : "60"),
+                  color: c.isDark ? c.text : c.accent,
+                }}
+              >
+                <Briefcase className="w-4 h-4 flex-shrink-0" style={{ color: c.accent }} />
+                <p className="text-sm font-medium">{profile.openTo}</p>
+              </div>
+            </FadeInSection>
+          </div>
+        </section>
+      )}
 
       {/* About */}
       <section className="pb-12 md:pb-16">
